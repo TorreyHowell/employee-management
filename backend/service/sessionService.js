@@ -1,7 +1,7 @@
 const Session = require('../models/sessionModel')
 const { verifyJwt, signJwt } = require('../utils/jwtUtils')
 const get = require('lodash/get')
-const { findUser } = require('./userService')
+const User = require('../models/userModel')
 
 const createSession = async (userId, userAgent) => {
   const session = await Session.create({ user: userId, userAgent })
@@ -18,7 +18,9 @@ const reIssueAccessToken = async (refreshToken) => {
 
   if (!session || !session.valid) return false
 
-  const user = await findUser({ _id: session.user })
+  const user = await User.findOne({ _id: session.user })
+    .select('-password')
+    .lean()
 
   if (!user) return false
 

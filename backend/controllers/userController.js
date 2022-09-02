@@ -1,33 +1,21 @@
 const asyncHandler = require('express-async-handler')
-const dayjs = require('dayjs')
-const { createSession } = require('../service/sessionService')
-const { createUser, validatePassword } = require('../service/userService')
-const { signJwt } = require('../utils/jwtUtils')
+const {
+  createUser,
+  validatePassword,
+  generateAccessRefreshTokens,
+  logout,
+} = require('../service/userService')
+const omit = require('lodash/omit')
 
 const createUserHandler = asyncHandler(async (req, res) => {
   const user = await createUser(req.body)
 
   if (user) {
-    const session = await createSession(user._id, req.get('user-agent') || '')
-
-    const accessToken = signJwt({ ...user, session: session._id }, 'access', {
-      expiresIn: '15m',
-    })
-
-    const refreshToken = signJwt({ ...user, session: session._id }, 'refresh', {
-      expiresIn: '30d',
-    })
-
-    res.cookie('refreshToken', refreshToken, {
-      secure: process.env.NODE_ENV !== 'development',
-      httpOnly: true,
-      expires: dayjs().add(30, 'days').toDate(),
-    })
-
-    const userData = {
-      ...user,
-      accessToken,
-    }
+    const userData = await generateAccessRefreshTokens(
+      omit(user.toJSON(), 'password'),
+      req,
+      res
+    )
 
     return res.status(201).json(userData)
   }
@@ -44,36 +32,30 @@ const loginUserHandler = asyncHandler(async (req, res) => {
   const user = await validatePassword(req.body)
 
   if (user) {
-    const session = await createSession(user._id, req.get('user-agent') || '')
+    const userData = await generateAccessRefreshTokens(user, req, res)
 
-    const accessToken = signJwt({ ...user, session: session._id }, 'access', {
-      expiresIn: '15m',
-    })
-
-    const refreshToken = signJwt({ ...user, session: session._id }, 'refresh', {
-      expiresIn: '30d',
-    })
-
-    res.cookie('refreshToken', refreshToken, {
-      secure: process.env.NODE_ENV !== 'development',
-      httpOnly: true,
-      expires: dayjs().add(30, 'days').toDate(),
-    })
-
-    const userData = {
-      ...user,
-      accessToken,
-    }
-
-    res.status(201).json(userData)
+    return res.status(201).json(userData)
   }
 
   res.status(403)
   throw new Error('Invalid user credentials')
 })
 
+const logoutUserHandler = asyncHandler(async (req, res) => {
+  try {
+    await logout(res.locals.user.session)
+  } catch (error) {
+    res.status(400)
+    throw new Error('Could not find session')
+  }
+
+  res.clearCookie('refreshToken')
+  res.end()
+})
+
 module.exports = {
   createUserHandler,
   getUserHandler,
   loginUserHandler,
+  logoutUserHandler,
 }

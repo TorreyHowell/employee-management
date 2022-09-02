@@ -3,6 +3,7 @@ const {
   createUserHandler,
   getUserHandler,
   loginUserHandler,
+  logoutUserHandler,
 } = require('../controllers/userController')
 const deserializeUser = require('../middleware/deserializeUser')
 const validate = require('../middleware/validateResource')
@@ -14,5 +15,7 @@ router.post('/', validate(userSchema), createUserHandler)
 router.get('/', deserializeUser, getUserHandler)
 
 router.post('/login', loginUserHandler)
+
+router.delete('/logout', deserializeUser, logoutUserHandler)
 
 module.exports = router
