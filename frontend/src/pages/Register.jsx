@@ -11,7 +11,7 @@ import useWindowDimensions from '../hooks/useWindowDimensions'
 import { useDispatch, useSelector } from 'react-redux'
 import { register, reset } from '../features/auth/authSlice'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 function Register() {
@@ -61,7 +61,7 @@ function Register() {
     <>
       <Stack
         sx={{
-          height: `${height}px`,
+          height: `${height - 65}px`,
           minHeight: 300,
         }}
         justifyContent="center"
@@ -76,7 +76,14 @@ function Register() {
             Register
           </Typography>
 
-          <FormControl component={'form'} onSubmit={onSubmit} fullWidth>
+          <FormControl
+            sx={{
+              marginBottom: 1,
+            }}
+            component={'form'}
+            onSubmit={onSubmit}
+            fullWidth
+          >
             <TextField
               fullWidth
               id="name"
@@ -129,6 +136,15 @@ function Register() {
               </Button>
             </Box>
           </FormControl>
+          <Link
+            className="link"
+            to={'/'}
+            style={{
+              color: 'cyan',
+            }}
+          >
+            Have an account? Login here
+          </Link>
         </Box>
       </Stack>
     </>

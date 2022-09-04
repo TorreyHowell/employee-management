@@ -11,7 +11,7 @@ import useWindowDimensions from '../hooks/useWindowDimensions'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, reset } from '../features/auth/authSlice'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 function Login() {
@@ -59,7 +59,7 @@ function Login() {
     <>
       <Stack
         sx={{
-          height: `${height}px`,
+          height: `${height - 65}px`,
           minHeight: 300,
         }}
         justifyContent="center"
@@ -74,7 +74,14 @@ function Login() {
             Login
           </Typography>
 
-          <FormControl component={'form'} onSubmit={onSubmit} fullWidth>
+          <FormControl
+            sx={{
+              marginBottom: 1,
+            }}
+            component={'form'}
+            onSubmit={onSubmit}
+            fullWidth
+          >
             <TextField
               fullWidth
               type="email"
@@ -108,6 +115,16 @@ function Login() {
               </Button>
             </Box>
           </FormControl>
+
+          <Link
+            className="link"
+            to={'/register'}
+            style={{
+              color: 'cyan',
+            }}
+          >
+            No account? Register here
+          </Link>
         </Box>
       </Stack>
     </>

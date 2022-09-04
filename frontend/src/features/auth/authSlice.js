@@ -3,7 +3,7 @@ import authService from './authService'
 
 const initialState = {
   user: null,
-  authStatus: '',
+  authStatus: 'REFRESHING',
   message: '',
 }
 
@@ -13,7 +13,6 @@ export const register = createAsyncThunk(
     try {
       return await authService.register(userData)
     } catch (error) {
-      console.log(error)
       const message =
         (error.response &&
           error.response.data &&
@@ -32,7 +31,6 @@ export const login = createAsyncThunk(
     try {
       return await authService.login(userData)
     } catch (error) {
-      console.log(error)
       const message =
         (error.response &&
           error.response.data &&
@@ -49,7 +47,19 @@ export const refresh = createAsyncThunk('auth/refresh', async (_, thunkAPI) => {
   try {
     return await authService.refresh()
   } catch (error) {
-    console.log(error)
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString()
+
+    return thunkAPI.rejectWithValue(message)
+  }
+})
+
+export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
+  try {
+    return await authService.logout()
+  } catch (error) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||
       error.message ||
@@ -66,6 +76,9 @@ export const authSlice = createSlice({
     reset: (state) => {
       state.authStatus = ''
       state.message = ''
+    },
+    setToken: (state, action) => {
+      state.user.accessToken = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -93,18 +106,24 @@ export const authSlice = createSlice({
         state.authStatus = 'ERROR'
       })
       .addCase(refresh.pending, (state) => {
-        state.authStatus = 'LOADING'
+        state.authStatus = 'REFRESHING'
       })
       .addCase(refresh.fulfilled, (state, action) => {
         state.user = action.payload
         state.authStatus = 'SUCCESS'
       })
-      .addCase(refresh.rejected, (state, action) => {
-        state.message = action.payload
-        state.authStatus = 'ERROR'
+      .addCase(refresh.rejected, (state) => {
+        state.authStatus = ''
+      })
+      .addCase(logout.pending, (state) => {
+        state.authStatus = 'LOADING'
+      })
+      .addCase(logout.fulfilled, (state, action) => {
+        state.user = null
+        state.authStatus = 'LOGOUT'
       })
   },
 })
 
-export const { reset } = authSlice.actions
+export const { reset, setToken } = authSlice.actions
 export default authSlice.reducer
