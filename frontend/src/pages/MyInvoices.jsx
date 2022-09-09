@@ -1,15 +1,19 @@
 import { Box, Button, Modal, Stack, Typography } from '@mui/material'
+import { useState } from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import InvoiceItem from '../components/InvoiceItem'
-import { getActiveClients } from '../features/client/clientSlice'
+import UserInvoiceItem from '../components/UserInvoiceItem'
 import {
-  createInvoice,
+  getActiveClients,
+  reset as resetClients,
+} from '../features/client/clientSlice'
+import {
   deleteHours,
   deleteInvoice,
   deleteReceipt,
-  getActiveInvoices,
+  getUserInvoices,
   reset as resetInvoices,
+  sendInvoice,
 } from '../features/invoice/invoiceSlice'
 import { reset as resetStage } from '../features/modal/confirmModalSlice'
 
@@ -27,7 +31,7 @@ const style = {
 
 function MyInvoices() {
   const { invoices } = useSelector((state) => state.invoice)
-  const { clients } = useSelector((state) => state.client)
+  const { user } = useSelector((state) => state.auth)
   const { isOpen, type, stagedId, parentId, sendIsOpen } = useSelector(
     (state) => state.confirmModal
   )
@@ -35,12 +39,13 @@ function MyInvoices() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(getActiveInvoices())
+    dispatch(getUserInvoices())
     dispatch(getActiveClients())
 
     return () => {
       dispatch(resetInvoices())
       dispatch(resetStage())
+      dispatch(resetClients())
     }
   }, [dispatch])
 
@@ -55,8 +60,11 @@ function MyInvoices() {
     dispatch(resetStage())
   }
 
-  const handleCreateInvoice = () => {
-    dispatch(createInvoice())
+  const handleSend = () => {
+    if (type === 'send') {
+      dispatch(sendInvoice(stagedId))
+    }
+    dispatch(resetStage())
   }
 
   return (
@@ -67,22 +75,12 @@ function MyInvoices() {
           margin: 'auto',
         }}
       >
-        <Button
-          variant="outlined"
-          fullWidth
-          sx={{
-            marginBottom: 2,
-          }}
-          onClick={handleCreateInvoice}
-        >
-          Create Invoice
-        </Button>
-
         <Stack spacing={2}>
           {invoices.map((invoice) => (
-            <InvoiceItem
+            <UserInvoiceItem
               key={invoice._id}
-              clients={clients}
+              hideDelete={true}
+              user={user}
               invoice={invoice}
             />
           ))}
@@ -123,11 +121,15 @@ function MyInvoices() {
           </Typography>
 
           <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
-            <Button variant="contained" onClick={() => dispatch(resetStage())}>
+            <Button
+              color="secondary"
+              variant="contained"
+              onClick={() => dispatch(resetStage())}
+            >
               Cancel
             </Button>
-            <Button variant="contained" color="error" onClick={handleDelete}>
-              Delete
+            <Button variant="contained" onClick={handleSend}>
+              Send
             </Button>
           </Stack>
         </Box>

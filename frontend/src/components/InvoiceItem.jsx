@@ -5,7 +5,10 @@ import {
   CardActions,
   CardContent,
   Divider,
+  FormControl,
+  InputLabel,
   MenuItem,
+  Select,
   TextField,
   Typography,
 } from '@mui/material'
@@ -16,17 +19,29 @@ import SendIcon from '@mui/icons-material/Send'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { Stack } from '@mui/system'
+import UndoIcon from '@mui/icons-material/Undo'
 import { useState } from 'react'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { toast } from 'react-toastify'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { addHours, addReceipt } from '../features/invoice/invoiceSlice'
 import NumberFormat from 'react-number-format'
 import { stage, stageSend } from '../features/modal/confirmModalSlice'
 
-function InvoiceItem({ invoice, clients }) {
+const ITEM_HEIGHT = 50
+const ITEM_PADDING_TOP = 8
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+}
+
+function InvoiceItem({ invoice, clients, onRescindClick }) {
   const [addNewHours, setAddNewHours] = useState(false)
   const [addNewReceipt, setAddNewReceipt] = useState(false)
 
@@ -162,174 +177,184 @@ function InvoiceItem({ invoice, clients }) {
             </Typography>
           </Stack>
 
-          <Box
-            component={'form'}
-            autoComplete="off"
-            sx={{
-              marginTop: 2,
-            }}
-          >
-            {!addNewHours && !addNewReceipt && (
-              <Stack direction={'row'} spacing={2}>
-                <Button
-                  onClick={() => setAddNewHours(true)}
-                  startIcon={<AddIcon />}
-                  variant="contained"
-                >
-                  Hours
-                </Button>
-                <Button
-                  onClick={() => setAddNewReceipt(true)}
-                  startIcon={<AddIcon />}
-                  variant="contained"
-                >
-                  Receipt
-                </Button>
-              </Stack>
-            )}
-
-            {addNewHours && (
-              <Stack direction={'row'} spacing={2} mb={2}>
-                <Button onClick={onHourSubmit} variant="contained">
-                  Submit
-                </Button>
-                <Button
-                  color="secondary"
-                  onClick={handleCancel}
-                  variant="contained"
-                >
-                  Cancel
-                </Button>
-              </Stack>
-            )}
-
-            {addNewReceipt && (
-              <Stack direction={'row'} spacing={2} mb={2}>
-                <Button onClick={onReceiptSubmit} variant="contained">
-                  Submit
-                </Button>
-                <Button
-                  color="secondary"
-                  onClick={handleCancel}
-                  variant="contained"
-                >
-                  Cancel
-                </Button>
-              </Stack>
-            )}
-
-            {addNewHours && (
-              <>
-                <Stack direction={'row'} spacing={1}>
-                  <TextField
-                    type={'number'}
-                    id="hours"
-                    name="hours"
-                    inputProps={{
-                      min: '0',
-                    }}
-                    onChange={onHourChange}
-                    value={newHourData.hours || ''}
-                    label="Hours"
-                    size="small"
-                  />
-                  <TextField
-                    select
-                    onChange={onHourChange}
-                    name="client"
-                    fullWidth
-                    label="Job"
-                    size="small"
-                    value={newHourData.client}
+          {!invoice.sent && (
+            <Box
+              component={'form'}
+              autoComplete="off"
+              sx={{
+                marginTop: 2,
+              }}
+            >
+              {!addNewHours && !addNewReceipt && (
+                <Stack direction={'row'} spacing={2}>
+                  <Button
+                    onClick={() => setAddNewHours(true)}
+                    startIcon={<AddIcon />}
+                    variant="contained"
                   >
-                    {clients.map((client) => (
-                      <MenuItem key={client._id} value={client._id}>
-                        {client.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  <Box>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DesktopDatePicker
-                        views={['year', 'month', 'day']}
-                        label="Date"
-                        id="date"
-                        name="date"
-                        inputFormat="MM/DD/YYYY"
-                        value={date}
-                        onChange={setDate}
-                        renderInput={(params) => (
-                          <TextField size="small" {...params} />
-                        )}
-                      />
-                    </LocalizationProvider>
-                  </Box>
-                </Stack>
-              </>
-            )}
-
-            {addNewReceipt && (
-              <>
-                <Stack direction={'row'} spacing={1}>
-                  <TextField
-                    value={newReceiptData.price || ''}
-                    onChange={onReceiptChange}
-                    name="price"
-                    id="price"
-                    type={'number'}
-                    label="Price"
-                    size="small"
-                    inputProps={{
-                      min: '0',
-                    }}
-                  />
-
-                  <TextField
-                    select
-                    onChange={onReceiptChange}
-                    name="client"
-                    fullWidth
-                    label="Job"
-                    size="small"
-                    value={newReceiptData.client}
+                    Hours
+                  </Button>
+                  <Button
+                    onClick={() => setAddNewReceipt(true)}
+                    startIcon={<AddIcon />}
+                    variant="contained"
                   >
-                    {clients.map((client) => (
-                      <MenuItem key={client._id} value={client._id}>
-                        {client.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                    Receipt
+                  </Button>
                 </Stack>
-                <Stack direction={'row'} mt={1} spacing={1}>
-                  <TextField
-                    value={newReceiptData.store}
-                    onChange={onReceiptChange}
-                    name="store"
-                    id="store"
-                    label="Store"
-                    size="small"
-                  />
+              )}
 
-                  <Box>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DesktopDatePicker
-                        views={['year', 'month', 'day']}
-                        label="Date"
-                        id="date"
-                        name="date"
-                        inputFormat="MM/DD/YYYY"
-                        value={date}
-                        onChange={setDate}
-                        renderInput={(params) => (
-                          <TextField size="small" {...params} />
-                        )}
-                      />
-                    </LocalizationProvider>
-                  </Box>
+              {addNewHours && (
+                <Stack direction={'row'} spacing={2} mb={2}>
+                  <Button onClick={onHourSubmit} variant="contained">
+                    Submit
+                  </Button>
+                  <Button
+                    color="secondary"
+                    onClick={handleCancel}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
                 </Stack>
-              </>
-            )}
-          </Box>
+              )}
+
+              {addNewReceipt && (
+                <Stack direction={'row'} spacing={2} mb={2}>
+                  <Button onClick={onReceiptSubmit} variant="contained">
+                    Submit
+                  </Button>
+                  <Button
+                    color="secondary"
+                    onClick={handleCancel}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                </Stack>
+              )}
+
+              {addNewHours && (
+                <>
+                  <Stack direction={'row'} spacing={1}>
+                    <TextField
+                      type={'number'}
+                      id="hours"
+                      name="hours"
+                      inputProps={{
+                        min: '0',
+                      }}
+                      onChange={onHourChange}
+                      value={newHourData.hours || ''}
+                      label="Hours"
+                      size="small"
+                    />
+                    <Box sx={{ minWidth: 120 }}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="job-label">Job</InputLabel>
+                        <Select
+                          labelId="job-label"
+                          id="job"
+                          label="job"
+                          onChange={onHourChange}
+                          name="client"
+                          value={newHourData.client}
+                          MenuProps={MenuProps}
+                        >
+                          {clients.map((client) => (
+                            <MenuItem key={client._id} value={client._id}>
+                              {client.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
+
+                    <Box>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDatePicker
+                          views={['year', 'month', 'day']}
+                          label="Date"
+                          id="date"
+                          name="date"
+                          inputFormat="MM/DD/YYYY"
+                          value={date}
+                          onChange={setDate}
+                          renderInput={(params) => (
+                            <TextField size="small" {...params} />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </Box>
+                  </Stack>
+                </>
+              )}
+
+              {addNewReceipt && (
+                <>
+                  <Stack direction={'row'} spacing={1}>
+                    <TextField
+                      value={newReceiptData.price || ''}
+                      onChange={onReceiptChange}
+                      name="price"
+                      id="price"
+                      type={'number'}
+                      label="Price"
+                      size="small"
+                      inputProps={{
+                        min: '0',
+                      }}
+                    />
+
+                    <FormControl fullWidth size="small">
+                      <InputLabel id="job-label">Job</InputLabel>
+                      <Select
+                        labelId="job-label"
+                        onChange={onReceiptChange}
+                        name="client"
+                        label="Job"
+                        value={newReceiptData.client}
+                        MenuProps={MenuProps}
+                      >
+                        {clients.map((client) => (
+                          <MenuItem key={client._id} value={client._id}>
+                            {client.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Stack>
+                  <Stack direction={'row'} mt={1} spacing={1}>
+                    <TextField
+                      value={newReceiptData.store}
+                      onChange={onReceiptChange}
+                      name="store"
+                      id="store"
+                      label="Store"
+                      size="small"
+                    />
+
+                    <Box>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDatePicker
+                          views={['year', 'month', 'day']}
+                          label="Date"
+                          id="date"
+                          name="date"
+                          inputFormat="MM/DD/YYYY"
+                          value={date}
+                          onChange={setDate}
+                          renderInput={(params) => (
+                            <TextField size="small" {...params} />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </Box>
+                  </Stack>
+                </>
+              )}
+            </Box>
+          )}
 
           <Divider
             sx={{
@@ -344,7 +369,12 @@ function InvoiceItem({ invoice, clients }) {
           </Divider>
           <Stack spacing={1}>
             {invoice.hours.map((hour) => (
-              <HourItem invoiceId={invoice._id} hour={hour} key={hour._id} />
+              <HourItem
+                hideDelete={invoice.sent}
+                invoiceId={invoice._id}
+                hour={hour}
+                key={hour._id}
+              />
             ))}
           </Stack>
 
@@ -366,40 +396,65 @@ function InvoiceItem({ invoice, clients }) {
                 invoiceId={invoice._id}
                 key={receipt._id}
                 receipt={receipt}
+                hideDelete={invoice.sent}
               />
             ))}
           </Stack>
         </CardContent>
         <CardActions>
-          <Stack
-            direction={'row'}
-            spacing={2}
-            sx={{
-              width: '100%',
-            }}
-            justifyContent="space-evenly"
-          >
-            <Button
-              endIcon={<SendIcon />}
-              variant="contained"
-              onClick={handleSend}
-              disabled={addNewHours || addNewReceipt}
-            >
-              Send
-            </Button>
-            <Button
+          {invoice.sent ? (
+            <Stack
+              direction={'row'}
+              spacing={2}
               sx={{
-                color: '#000',
+                width: '100%',
               }}
-              endIcon={<DeleteIcon />}
-              color="error"
-              variant="contained"
-              onClick={handleDelete}
-              disabled={addNewHours || addNewReceipt}
+              justifyContent="space-evenly"
             >
-              Delete
-            </Button>
-          </Stack>
+              <Button
+                endIcon={<UndoIcon />}
+                variant="contained"
+                color="secondary"
+                onClick={() => onRescindClick(invoice._id)}
+                disabled={addNewHours || addNewReceipt}
+                fullWidth
+              >
+                Rescind
+              </Button>
+            </Stack>
+          ) : (
+            <Stack
+              direction={'row'}
+              spacing={2}
+              sx={{
+                width: '100%',
+              }}
+              justifyContent="space-evenly"
+            >
+              <Button
+                endIcon={<SendIcon />}
+                variant="contained"
+                onClick={handleSend}
+                disabled={addNewHours || addNewReceipt}
+                fullWidth
+              >
+                Send
+              </Button>
+              <Button
+                sx={{
+                  color: '#000',
+                }}
+                endIcon={<DeleteIcon />}
+                color="error"
+                variant="contained"
+                onClick={handleDelete}
+                disabled={addNewHours || addNewReceipt}
+                fullWidth
+              >
+                Delete
+              </Button>
+            </Stack>
+          )}
         </CardActions>
       </Card>
     </>

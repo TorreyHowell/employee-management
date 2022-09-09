@@ -12,6 +12,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { refresh } from './features/auth/authSlice'
 import Nav from './components/Nav'
 import MyInvoices from './pages/MyInvoices'
+import PrivateRoute from './components/PrivateRoute'
+import Clients from './pages/Clients'
+import PrivateAdminRoute from './components/PrivateAdminRoute'
+import PrivateOwnerRoute from './components/privateOwnerRoute'
+import NotVerified from './pages/NotVerified'
+import Client from './pages/Client'
+import Inbox from './pages/Inbox'
+import Bill from './pages/Bill'
+import Users from './pages/Users'
+import UserAdmin from './pages/UserAdmin'
 
 const darkTheme = createTheme({
   palette: {
@@ -35,12 +45,35 @@ function App() {
         <CssBaseline enableColorScheme />
         <Router>
           <Nav />
-          <Container maxWidth="md">
+          <Container maxWidth="sm">
             <Routes>
+              <Route path="/dashboard" element={<PrivateRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
               <Route path="/" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/my-invoices" element={<MyInvoices />} />
+              <Route path="/my-invoices" element={<PrivateRoute />}>
+                <Route path="/my-invoices" element={<MyInvoices />} />
+              </Route>
+              <Route path="/clients" element={<PrivateAdminRoute />}>
+                <Route path="/clients" element={<Clients />} />
+              </Route>
+              <Route path="/client/:id" element={<PrivateOwnerRoute />}>
+                <Route path="/client/:id" element={<Client />} />
+              </Route>
+              <Route path="/bill/:id" element={<PrivateOwnerRoute />}>
+                <Route path="/bill/:id" element={<Bill />} />
+              </Route>
+              <Route path="/inbox" element={<PrivateAdminRoute />}>
+                <Route path="/inbox" element={<Inbox />} />
+              </Route>
+              <Route path="/users" element={<PrivateOwnerRoute />}>
+                <Route path="/users" element={<Users />} />
+              </Route>
+              <Route path="/admin/profile/:id" element={<PrivateOwnerRoute />}>
+                <Route path="/admin/profile/:id" element={<UserAdmin />} />
+              </Route>
+              <Route path="/not-verified" element={<NotVerified />} />
             </Routes>
           </Container>
         </Router>

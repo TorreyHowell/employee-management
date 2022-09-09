@@ -2,6 +2,18 @@ import myAxios from '../../utils/axios'
 
 const API = '/api/invoice/'
 
+const getUserInvoices = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(API + 'user', config)
+
+  return response.data
+}
+
 const getActiveInvoices = async (token) => {
   const config = {
     headers: {
@@ -9,7 +21,31 @@ const getActiveInvoices = async (token) => {
     },
   }
 
-  const response = await myAxios.get(API + 'unsent', config)
+  const response = await myAxios.get(`/api/invoice/unsent/`, config)
+
+  return response.data
+}
+
+const createInvoice = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.post(API, {}, config)
+
+  return response.data
+}
+
+const getSentInvoices = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(API + 'sent', config)
 
   return response.data
 }
@@ -76,18 +112,6 @@ const deleteReceipt = async ({ id, parentId }, token) => {
   return response.data
 }
 
-const createInvoice = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-
-  const response = await myAxios.post(API, config)
-
-  return response.data
-}
-
 const deleteInvoice = async (id, token) => {
   const config = {
     headers: {
@@ -100,6 +124,54 @@ const deleteInvoice = async (id, token) => {
   return response.data
 }
 
+const sendInvoice = async (id, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(`${API}send/${id}`, {}, config)
+
+  return response.data
+}
+
+const payInvoice = async (id, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(`${API}pay/${id}`, {}, config)
+
+  return response.data
+}
+
+const denyInvoice = async (id, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(`${API}deny/${id}`, {}, config)
+
+  return response.data
+}
+
+const rescindInvoice = async (id, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(`${API}rescind/${id}`, {}, config)
+
+  return response.data
+}
+
 const invoiceService = {
   getActiveInvoices,
   addHours,
@@ -108,6 +180,12 @@ const invoiceService = {
   deleteReceipt,
   createInvoice,
   deleteInvoice,
+  sendInvoice,
+  getSentInvoices,
+  payInvoice,
+  denyInvoice,
+  getUserInvoices,
+  rescindInvoice,
 }
 
 export default invoiceService

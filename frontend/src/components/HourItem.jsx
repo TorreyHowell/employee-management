@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
 import { stage } from '../features/modal/confirmModalSlice'
 
-function HourItem({ hour, invoiceId }) {
+function HourItem({ hour, invoiceId, hideDelete }) {
   const dispatch = useDispatch()
 
   return (
@@ -25,21 +25,23 @@ function HourItem({ hour, invoiceId }) {
             </Typography>
           </Stack>
 
-          <Stack direction={'row'} alignItems="center">
-            <IconButton
-              onClick={() =>
-                dispatch(
-                  stage({
-                    id: hour._id,
-                    type: 'hour',
-                    parentId: invoiceId,
-                  })
-                )
-              }
-            >
-              <DeleteForeverIcon color="error" />
-            </IconButton>
-          </Stack>
+          {!hideDelete && (
+            <Stack direction={'row'} alignItems="center">
+              <IconButton
+                onClick={() =>
+                  dispatch(
+                    stage({
+                      id: hour._id,
+                      type: 'hour',
+                      parentId: invoiceId,
+                    })
+                  )
+                }
+              >
+                <DeleteForeverIcon color="error" />
+              </IconButton>
+            </Stack>
+          )}
         </Stack>
       </Paper>
     </>

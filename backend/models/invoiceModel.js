@@ -29,6 +29,10 @@ const receiptSchema = new mongoose.Schema(
       type: mongoose.Decimal128,
       required: [true, 'Add a price'],
     },
+    store: {
+      type: String,
+      required: [true, 'Add a store'],
+    },
     date: {
       type: Date,
       required: [true, 'Add a date'],
@@ -82,33 +86,30 @@ invoiceSchema.pre('save', async function (next) {
   let totalCost = 0
   let gains = 0
 
-  if (this.hours.length > 0) {
-    const user = await User.findById(this.user)
+  const user = await User.findById(this.user)
 
-    let hours = 0
+  //Calculating hours
 
-    this.hours.forEach((doc) => {
-      return (hours += doc.hours)
-    })
+  let hours = 0
 
-    const hoursPay = hours * user.paidHourly
+  this.hours.forEach((doc) => {
+    return (hours += doc.hours)
+  })
 
-    gains += hoursPay
-    totalCost += hoursPay
-  }
+  const hoursPay = hours * user.paidHourly
 
-  if (this.receipts.length > 0) {
-    let cost = 0
+  gains += hoursPay
+  totalCost += hoursPay
 
-    this.receipts.forEach((doc) => {
-      return (cost += parseFloat(doc.price.toString()))
-    })
-    totalCost += cost
-  }
+  // Calculating receipts
+  let cost = 0
 
-  if (totalCost) {
-    this.amountBilled = totalCost.toFixed(2)
-  }
+  this.receipts.forEach((doc) => {
+    return (cost += parseFloat(doc.price.toString()))
+  })
+  totalCost += cost
+
+  this.amountBilled = totalCost.toFixed(2)
 
   this.profit = gains.toFixed(2)
 

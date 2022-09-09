@@ -8,12 +8,50 @@ const initialState = {
   invoiceMessage: '',
 }
 
+export const getUserInvoices = createAsyncThunk(
+  'invoice/getUserInvoices',
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.getUserInvoices(token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const getActiveInvoices = createAsyncThunk(
   'invoice/getActiveInvoices',
   async (_, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.accessToken
       return await invoiceService.getActiveInvoices(token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const getSentInvoices = createAsyncThunk(
+  'invoice/getSentInvoices',
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.getSentInvoices(token)
     } catch (error) {
       const message =
         (error.response &&
@@ -141,6 +179,82 @@ export const deleteInvoice = createAsyncThunk(
   }
 )
 
+export const denyInvoice = createAsyncThunk(
+  'invoice/denyInvoice',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.denyInvoice(id, token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const payInvoice = createAsyncThunk(
+  'invoice/payInvoice',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.payInvoice(id, token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const rescindInvoice = createAsyncThunk(
+  'invoice/rescindInvoice',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.rescindInvoice(id, token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const sendInvoice = createAsyncThunk(
+  'invoice/sendInvoice',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.sendInvoice(id, token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const invoiceSlice = createSlice({
   name: 'invoice',
   initialState,
@@ -245,6 +359,86 @@ export const invoiceSlice = createSlice({
         )
       })
       .addCase(deleteInvoice.rejected, (state, action) => {
+        state.invoiceMessage = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(sendInvoice.pending, (state, action) => {
+        state.invoiceMessage = 'PENDING'
+      })
+      .addCase(sendInvoice.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = state.invoices.map((invoice) => {
+          if (invoice._id === action.payload._id) {
+            return action.payload
+          }
+          return invoice
+        })
+      })
+      .addCase(sendInvoice.rejected, (state, action) => {
+        state.invoiceMessage = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(getSentInvoices.pending, (state, action) => {
+        state.invoiceMessage = 'LOADING'
+      })
+      .addCase(getSentInvoices.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = action.payload
+      })
+      .addCase(getSentInvoices.rejected, (state, action) => {
+        state.invoiceMessage = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(denyInvoice.pending, (state, action) => {
+        state.invoiceMessage = 'PENDING'
+      })
+      .addCase(denyInvoice.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = state.invoices.filter(
+          (invoice) => invoice._id !== action.payload
+        )
+      })
+      .addCase(denyInvoice.rejected, (state, action) => {
+        state.invoiceMessage = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(payInvoice.pending, (state, action) => {
+        state.invoiceMessage = 'PENDING'
+      })
+      .addCase(payInvoice.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = state.invoices.filter(
+          (invoice) => invoice._id !== action.payload
+        )
+      })
+      .addCase(payInvoice.rejected, (state, action) => {
+        state.invoiceMessage = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(getUserInvoices.pending, (state, action) => {
+        state.invoiceMessage = 'LOADING'
+      })
+      .addCase(getUserInvoices.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = action.payload
+      })
+      .addCase(getUserInvoices.rejected, (state, action) => {
+        state.invoiceStatus = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(rescindInvoice.pending, (state, action) => {
+        state.invoiceMessage = 'PENDING'
+      })
+      .addCase(rescindInvoice.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = state.invoices.map((invoice) => {
+          if (invoice._id === action.payload._id) {
+            return action.payload
+          }
+          return invoice
+        })
+      })
+      .addCase(rescindInvoice.rejected, (state, action) => {
         state.invoiceMessage = 'ERROR'
         state.invoiceMessage = action.payload
       })

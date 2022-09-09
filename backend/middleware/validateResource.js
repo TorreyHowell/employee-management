@@ -10,7 +10,8 @@ const validate = (schema) => (req, res, next) => {
         message: error.message,
       })
     })
-    return res.status(400).send(errorMessages)
+    res.status(400)
+    return next(new Error('Invalid input'))
   }
 
   return next()

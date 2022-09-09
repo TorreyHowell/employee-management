@@ -5,7 +5,7 @@ import NumberFormat from 'react-number-format'
 import { stage } from '../features/modal/confirmModalSlice'
 import { useDispatch } from 'react-redux'
 
-function ReceiptItem({ receipt, invoiceId }) {
+function ReceiptItem({ receipt, invoiceId, admin, hideDelete }) {
   const dispatch = useDispatch()
   return (
     <>
@@ -32,21 +32,23 @@ function ReceiptItem({ receipt, invoiceId }) {
             </Typography>
           </Stack>
 
-          <Stack direction={'row'} alignItems="center">
-            <IconButton
-              onClick={() =>
-                dispatch(
-                  stage({
-                    id: receipt._id,
-                    type: 'receipt',
-                    parentId: invoiceId,
-                  })
-                )
-              }
-            >
-              <DeleteForeverIcon color="error" />
-            </IconButton>
-          </Stack>
+          {!hideDelete && (
+            <Stack direction={'row'} alignItems="center">
+              <IconButton
+                onClick={() =>
+                  dispatch(
+                    stage({
+                      id: receipt._id,
+                      type: 'receipt',
+                      parentId: invoiceId,
+                    })
+                  )
+                }
+              >
+                <DeleteForeverIcon color="error" />
+              </IconButton>
+            </Stack>
+          )}
         </Stack>
       </Paper>
     </>

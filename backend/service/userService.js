@@ -4,17 +4,23 @@ const { createSession } = require('../service/sessionService')
 const dayjs = require('dayjs')
 const Session = require('../models/sessionModel')
 const { signJwt } = require('../utils/jwtUtils')
+const bcrypt = require('bcryptjs')
 
-const createUser = async (body) => {
-  const { email } = body
+const createUser = async (userData) => {
+  const { email } = userData
 
   const emailExists = await User.findOne({ email })
 
   if (emailExists) {
-    throw new Error('Email taken')
+    throw new Error('User already exists')
   }
 
-  const user = await User.create(body)
+  const salt = await bcrypt.genSalt(10)
+  const hash = await bcrypt.hash(userData.password, salt)
+
+  userData.password = hash
+
+  const user = await User.create(userData)
 
   return omit(user.toJSON(), ['password', '__v'])
 }

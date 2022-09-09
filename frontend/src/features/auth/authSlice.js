@@ -77,8 +77,10 @@ export const authSlice = createSlice({
       state.authStatus = ''
       state.message = ''
     },
-    setToken: (state, action) => {
-      state.user.accessToken = action.payload
+    noAuth: (state) => {
+      state.authStatus = ''
+      state.user = null
+      state.message = ''
     },
   },
   extraReducers: (builder) => {
@@ -125,5 +127,5 @@ export const authSlice = createSlice({
   },
 })
 
-export const { reset, setToken } = authSlice.actions
+export const { reset, noAuth } = authSlice.actions
 export default authSlice.reducer
