@@ -26,9 +26,35 @@ const getContractors = async (token) => {
   return response.data
 }
 
+const getContractor = async (token, id) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(API + id, config)
+
+  return response.data
+}
+
+const updateContractor = async (token, { query, id }) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(API + id, query, config)
+
+  return response.data
+}
+
 const contractorService = {
   createContractor,
   getContractors,
+  getContractor,
+  updateContractor,
 }
 
 export default contractorService
