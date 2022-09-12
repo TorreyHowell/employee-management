@@ -21,6 +21,7 @@ const calculateCharges = async (invoiceId) => {
         name: `${receipt.store} Receipt`,
         type: 'Receipt',
         user: invoice.user._id,
+        invoice: invoiceId,
         client: receipt.client,
         amountCharged: receipt.price,
       })
@@ -36,14 +37,13 @@ const calculateCharges = async (invoiceId) => {
         name: `${invoice.user.name} Labor`,
         type: 'Labor',
         user: invoice.user._id,
+        invoice: invoiceId,
         client: key,
         amountCharged: amountCharged,
         profit: profit,
       })
     }
-  } catch (e) {
-    console.log(e)
-  }
+  } catch (e) {}
 }
 
 module.exports = {

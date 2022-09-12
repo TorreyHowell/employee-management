@@ -5,14 +5,28 @@ const { verifyJwt } = require('../utils/jwtUtils')
 const deserializeUser = async (req, res, next) => {
   const refreshToken = get(req, 'cookies.refreshToken')
 
+  res.setHeader('x-access-token', '')
+
+  const accessToken = get(req, 'headers.authorization', '').replace(
+    /^Bearer\s/,
+    ''
+  )
+
+  const { decoded, expired } = verifyJwt(accessToken, 'access')
+
+  if (decoded && !expired) {
+    res.locals.user = decoded
+    return next()
+  }
+
   if (refreshToken) {
     const newAccessToken = await reIssueAccessToken(refreshToken)
 
     if (!newAccessToken) {
-      console.log('here')
-      res.setHeader('x-access-token', 'expired')
       return next()
     }
+
+    res.setHeader('x-access-token', newAccessToken)
 
     const result = verifyJwt(newAccessToken, 'access')
 

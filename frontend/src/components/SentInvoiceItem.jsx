@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -14,29 +15,36 @@ import DoDisturbIcon from '@mui/icons-material/DoDisturb'
 import { Stack } from '@mui/system'
 import NumberFormat from 'react-number-format'
 
-function SentInvoiceItem({ invoice, payClick, denyClick, user, hideDelete }) {
+function SentInvoiceItem({ invoice, payClick, denyClick, deleteClick }) {
   return (
     <>
       <Card>
         <CardContent>
-          <Stack direction={'row'} justifyContent="space-between">
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 500,
-              }}
-            >
-              {dayjs(invoice.createdAt).format('MM-DD-YYYY')}
-            </Typography>
+          <Stack spacing={2} direction={'row'} justifyContent="space-between">
+            <Stack sx={{ width: '60%' }}>
+              <Typography noWrap variant="h6">
+                {invoice.user.name}
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 500,
+                }}
+              >
+                {dayjs(invoice.createdAt).format('MM-DD-YYYY')}
+              </Typography>
+            </Stack>
 
-            <Typography variant="h6">
-              <NumberFormat
-                displayType="text"
-                thousandSeparator={true}
-                prefix="$"
-                value={invoice.amountBilled.$numberDecimal}
-              />
-            </Typography>
+            <Box sx={{ width: '40%' }}>
+              <Typography noWrap variant="h6" align="right">
+                <NumberFormat
+                  displayType="text"
+                  thousandSeparator={true}
+                  prefix="$"
+                  value={invoice.amountBilled.$numberDecimal}
+                />
+              </Typography>
+            </Box>
           </Stack>
 
           <Divider
@@ -85,35 +93,47 @@ function SentInvoiceItem({ invoice, payClick, denyClick, user, hideDelete }) {
           </Stack>
         </CardContent>
         <CardActions>
-          <Stack
-            direction={'row'}
-            spacing={2}
-            sx={{
-              width: '100%',
-            }}
-            justifyContent="space-evenly"
-          >
-            <Button
-              endIcon={<AttachMoneyIcon />}
-              variant="contained"
-              onClick={() => payClick(invoice._id)}
-              fullWidth
-            >
-              Pay
-            </Button>
-            <Button
+          {!invoice.paid ? (
+            <Stack
+              direction={'row'}
+              spacing={2}
               sx={{
-                color: '#000',
+                width: '100%',
               }}
-              fullWidth
-              endIcon={<DoDisturbIcon />}
-              color="error"
-              variant="contained"
-              onClick={() => denyClick(invoice._id)}
+              justifyContent="space-evenly"
             >
-              Deny
-            </Button>
-          </Stack>
+              <Button
+                endIcon={<AttachMoneyIcon />}
+                variant="outlined"
+                onClick={() => payClick(invoice._id)}
+                fullWidth
+              >
+                Pay
+              </Button>
+              <Button
+                fullWidth
+                endIcon={<DoDisturbIcon />}
+                color="error"
+                variant="outlined"
+                onClick={() => denyClick(invoice._id)}
+              >
+                Deny
+              </Button>
+            </Stack>
+          ) : (
+            <>
+              <Box sx={{ width: '90%', margin: 'auto' }}>
+                <Button
+                  fullWidth
+                  color="error"
+                  variant="outlined"
+                  onClick={() => deleteClick(invoice._id)}
+                >
+                  Delete
+                </Button>
+              </Box>
+            </>
+          )}
         </CardActions>
       </Card>
     </>

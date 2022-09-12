@@ -65,6 +65,25 @@ export const getSentInvoices = createAsyncThunk(
   }
 )
 
+export const getPaidInvoices = createAsyncThunk(
+  'invoice/getPaidInvoices',
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.getPaidInvoices(token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const createInvoice = createAsyncThunk(
   'invoice/createInvoice',
   async (_, thunkAPI) => {
@@ -179,6 +198,25 @@ export const deleteInvoice = createAsyncThunk(
   }
 )
 
+export const adminDeleteInvoice = createAsyncThunk(
+  'invoice/adminDeleteInvoice',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await invoiceService.adminDeleteInvoice(id, token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const denyInvoice = createAsyncThunk(
   'invoice/denyInvoice',
   async (id, thunkAPI) => {
@@ -274,6 +312,17 @@ export const invoiceSlice = createSlice({
         state.invoiceStatus = 'ERROR'
         state.invoiceMessage = action.payload
       })
+      .addCase(getPaidInvoices.pending, (state, action) => {
+        state.invoiceMessage = 'LOADING'
+      })
+      .addCase(getPaidInvoices.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = action.payload
+      })
+      .addCase(getPaidInvoices.rejected, (state, action) => {
+        state.invoiceStatus = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
       .addCase(addHours.pending, (state, action) => {
         state.invoiceMessage = 'PENDING'
       })
@@ -350,7 +399,7 @@ export const invoiceSlice = createSlice({
         state.invoiceMessage = action.payload
       })
       .addCase(deleteInvoice.pending, (state, action) => {
-        state.invoiceMessage = 'PENDING'
+        state.invoiceStatus = 'PENDING'
       })
       .addCase(deleteInvoice.fulfilled, (state, action) => {
         state.invoiceMessage = 'SUCCESS'
@@ -360,6 +409,19 @@ export const invoiceSlice = createSlice({
       })
       .addCase(deleteInvoice.rejected, (state, action) => {
         state.invoiceMessage = 'ERROR'
+        state.invoiceMessage = action.payload
+      })
+      .addCase(adminDeleteInvoice.pending, (state, action) => {
+        state.invoiceStatus = 'PENDING'
+      })
+      .addCase(adminDeleteInvoice.fulfilled, (state, action) => {
+        state.invoiceMessage = 'SUCCESS'
+        state.invoices = state.invoices.filter(
+          (invoice) => invoice._id !== action.payload
+        )
+      })
+      .addCase(adminDeleteInvoice.rejected, (state, action) => {
+        state.invoiceStatus = 'ERROR'
         state.invoiceMessage = action.payload
       })
       .addCase(sendInvoice.pending, (state, action) => {

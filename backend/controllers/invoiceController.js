@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Invoice = require('../models/invoiceModel')
 const User = require('../models/userModel')
+const Charge = require('../models/chargeModel')
 const dayjs = require('dayjs')
 const { calculateCharges } = require('../service/invoiceService')
 
@@ -142,12 +143,25 @@ const getUserInvoices = asyncHandler(async (req, res) => {
   return res.status(200).json(invoices)
 })
 
+const getPaidInvoices = asyncHandler(async (req, res) => {
+  const invoices = await Invoice.find({
+    paid: true,
+  })
+    .populate('hours.client', 'name')
+    .populate('user', 'name')
+    .sort({ createdAt: 'desc' })
+    .lean()
+
+  return res.status(200).json(invoices)
+})
+
 const getSentInvoices = asyncHandler(async (req, res) => {
   const invoices = await Invoice.find({
     paid: false,
     sent: true,
   })
     .populate('hours.client', 'name')
+    .populate('user', 'name')
     .lean()
 
   return res.status(200).json(invoices)
@@ -161,9 +175,36 @@ const deleteInvoice = asyncHandler(async (req, res) => {
     throw new Error('not authorized')
   }
 
+  if (invoice.sent || invoice.paid) {
+    res.status(400)
+    throw new Error("can't delete a sent invoice")
+  }
+
   await invoice.remove()
 
   return res.status(203).json(req.params.id)
+})
+
+const adminDeleteInvoice = asyncHandler(async (req, res) => {
+  const invoice = await Invoice.findById(req.params.id)
+
+  const chargesAttachedToBills = await Charge.find({
+    invoice: invoice._id,
+    bill: { $ne: null },
+  })
+
+  if (chargesAttachedToBills.length > 0) {
+    res.status(400)
+    throw new Error('Invoice has charges attached to a bill')
+  }
+
+  await Charge.deleteMany({
+    invoice: invoice._id,
+  })
+
+  await invoice.remove()
+
+  return res.status(200).json(invoice._id)
 })
 
 const sendInvoice = asyncHandler(async (req, res) => {
@@ -227,10 +268,12 @@ module.exports = {
   pullHours,
   pullReceipt,
   deleteInvoice,
+  adminDeleteInvoice,
   sendInvoice,
   getSentInvoices,
   payInvoice,
   denyInvoice,
   getUserInvoices,
   rescindInvoice,
+  getPaidInvoices,
 }

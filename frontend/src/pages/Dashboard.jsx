@@ -86,7 +86,7 @@ function Dashboard() {
     dispatch(resetStage())
   }
 
-  if (invoiceStatus === 'LOADING') return <Spinner />
+  if (invoiceStatus === 'LOADING') return <></>
 
   return (
     <>
@@ -108,14 +108,15 @@ function Dashboard() {
         </Button>
 
         <Stack spacing={2}>
-          {invoices.map((invoice) => (
-            <InvoiceItem
-              key={invoice._id}
-              clients={clients}
-              invoice={invoice}
-              onRescindClick={handleRescindClick}
-            />
-          ))}
+          {invoices &&
+            invoices.map((invoice) => (
+              <InvoiceItem
+                key={invoice._id}
+                clients={clients}
+                invoice={invoice}
+                onRescindClick={handleRescindClick}
+              />
+            ))}
         </Stack>
       </Box>
 
@@ -131,14 +132,17 @@ function Dashboard() {
           </Typography>
 
           <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
-            <Button variant="contained" onClick={() => dispatch(resetStage())}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              fullWidth
+              onClick={() => dispatch(resetStage())}
+            >
               Cancel
             </Button>
             <Button
-              sx={{
-                color: '#000',
-              }}
-              variant="contained"
+              variant="outlined"
+              fullWidth
               color="error"
               onClick={handleDelete}
             >
@@ -162,12 +166,13 @@ function Dashboard() {
           <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
             <Button
               color="secondary"
-              variant="contained"
+              variant="outlined"
+              fullWidth
               onClick={() => dispatch(resetStage())}
             >
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleSend}>
+            <Button variant="outlined" fullWidth onClick={handleSend}>
               Send
             </Button>
           </Stack>
@@ -188,12 +193,18 @@ function Dashboard() {
           <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
             <Button
               color="secondary"
-              variant="contained"
+              variant="outlined"
+              fullWidth
               onClick={() => setRescindModalOpen(false)}
             >
               Cancel
             </Button>
-            <Button color="error" variant="contained" onClick={handleRescind}>
+            <Button
+              color="error"
+              variant="outlined"
+              fullWidth
+              onClick={handleRescind}
+            >
               Rescind
             </Button>
           </Stack>

@@ -17,11 +17,11 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Please add a password'],
     },
     paidHourly: {
-      type: Number,
+      type: mongoose.Decimal128,
       default: 0,
     },
     chargedHourly: {
-      type: Number,
+      type: mongoose.Decimal128,
       default: 0,
     },
     verifiedUser: {

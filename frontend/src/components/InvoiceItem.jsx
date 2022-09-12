@@ -190,14 +190,14 @@ function InvoiceItem({ invoice, clients, onRescindClick }) {
                   <Button
                     onClick={() => setAddNewHours(true)}
                     startIcon={<AddIcon />}
-                    variant="contained"
+                    variant="outlined"
                   >
                     Hours
                   </Button>
                   <Button
                     onClick={() => setAddNewReceipt(true)}
                     startIcon={<AddIcon />}
-                    variant="contained"
+                    variant="outlined"
                   >
                     Receipt
                   </Button>
@@ -206,13 +206,13 @@ function InvoiceItem({ invoice, clients, onRescindClick }) {
 
               {addNewHours && (
                 <Stack direction={'row'} spacing={2} mb={2}>
-                  <Button onClick={onHourSubmit} variant="contained">
+                  <Button onClick={onHourSubmit} variant="outlined">
                     Submit
                   </Button>
                   <Button
                     color="secondary"
                     onClick={handleCancel}
-                    variant="contained"
+                    variant="outlined"
                   >
                     Cancel
                   </Button>
@@ -221,13 +221,13 @@ function InvoiceItem({ invoice, clients, onRescindClick }) {
 
               {addNewReceipt && (
                 <Stack direction={'row'} spacing={2} mb={2}>
-                  <Button onClick={onReceiptSubmit} variant="contained">
+                  <Button onClick={onReceiptSubmit} variant="outlined">
                     Submit
                   </Button>
                   <Button
                     color="secondary"
                     onClick={handleCancel}
-                    variant="contained"
+                    variant="outlined"
                   >
                     Cancel
                   </Button>
@@ -413,7 +413,7 @@ function InvoiceItem({ invoice, clients, onRescindClick }) {
             >
               <Button
                 endIcon={<UndoIcon />}
-                variant="contained"
+                variant="outlined"
                 color="secondary"
                 onClick={() => onRescindClick(invoice._id)}
                 disabled={addNewHours || addNewReceipt}
@@ -433,7 +433,7 @@ function InvoiceItem({ invoice, clients, onRescindClick }) {
             >
               <Button
                 endIcon={<SendIcon />}
-                variant="contained"
+                variant="outlined"
                 onClick={handleSend}
                 disabled={addNewHours || addNewReceipt}
                 fullWidth
@@ -441,12 +441,9 @@ function InvoiceItem({ invoice, clients, onRescindClick }) {
                 Send
               </Button>
               <Button
-                sx={{
-                  color: '#000',
-                }}
                 endIcon={<DeleteIcon />}
                 color="error"
-                variant="contained"
+                variant="outlined"
                 onClick={handleDelete}
                 disabled={addNewHours || addNewReceipt}
                 fullWidth

@@ -3,12 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Button,
+  Divider,
   Fab,
   IconButton,
   List,
   ListItem,
   Menu,
   MenuItem,
+  Modal,
   Stack,
   Typography,
 } from '@mui/material'
@@ -16,6 +18,7 @@ import generateChargeTableData from '../utils/generateChargeTableData'
 import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs'
 import {
+  deleteCharge,
   getClientBills,
   getClientCharges,
   reset as resetCharges,
@@ -28,6 +31,7 @@ import NumberFormat from 'react-number-format'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { changeStatus, getClient } from '../features/client/clientSlice'
 import SettingsIcon from '@mui/icons-material/Settings'
+import CreateCharge from '../components/CreateCharge'
 
 const columns = [
   { field: 'col1', headerName: 'Name', width: 200 },
@@ -36,9 +40,23 @@ const columns = [
   { field: 'col4', headerName: 'Type', width: 150 },
 ]
 
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: '90%', sm: 500 },
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+}
+
 function Client() {
   const [tableData, setTableData] = useState(null)
   const [selectedCharges, setSelectedCharges] = useState([])
+  const [createModal, setCreateModal] = useState(false)
+  const [deleteChargeModal, setDeleteChargeModal] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
   const { charges, bills } = useSelector((state) => state.charges)
@@ -59,19 +77,13 @@ function Client() {
   }, [dispatch, params.id])
 
   useEffect(() => {
-    setTableData(generateChargeTableData(charges))
+    if (charges.length > 0) {
+      setTableData(generateChargeTableData(charges))
+    }
   }, [charges])
 
   const handleRowSelection = (params) => {
     setSelectedCharges(params)
-  }
-
-  const handleCreateBill = () => {
-    dispatch()
-    createBill({
-      clientId: params.id,
-      charges: selectedCharges,
-    })
   }
 
   const handleSetStatus = () => {
@@ -85,6 +97,22 @@ function Client() {
 
   const menuClick = (e) => {
     setAnchorEl(e.currentTarget)
+  }
+
+  const handleCreateBill = () => {
+    dispatch(
+      createBill({
+        clientId: params.id,
+        charges: selectedCharges,
+      })
+    )
+    setCreateModal(false)
+  }
+
+  const handleDeleteCharge = () => {
+    dispatch(deleteCharge(selectedCharges[0]))
+
+    setDeleteChargeModal(false)
   }
 
   if (!client) return <></>
@@ -153,41 +181,41 @@ function Client() {
                 )}
               </div>
             </div>
-            <Box mt={1} mb={3}>
-              <Stack direction={'row'} spacing={2} mb={2}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  disabled={selectedCharges.length !== 1}
-                  onClick={() => navigate(`/edit-charge/${selectedCharges[0]}`)}
-                >
-                  Edit Charge
-                </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  disabled={selectedCharges.length !== 1}
-                  color="error"
-                >
-                  Delete Charge
-                </Button>
-              </Stack>
-              <Button
-                variant="outlined"
-                fullWidth
-                disabled={selectedCharges.length < 1}
-                color="success"
-                onClick={handleCreateBill}
-              >
-                Create Bill
-              </Button>
-            </Box>
           </>
         )}
 
+        <Box mt={1} mb={3}>
+          <Stack direction={'row'} spacing={2} mb={2}>
+            <CreateCharge />
+            {charges.length > 0 && (
+              <Button
+                variant="outlined"
+                fullWidth
+                disabled={selectedCharges.length !== 1}
+                color="error"
+                onClick={() => setDeleteChargeModal(true)}
+              >
+                Delete Charge
+              </Button>
+            )}
+          </Stack>
+          {charges.length > 0 && (
+            <Button
+              variant="outlined"
+              fullWidth
+              disabled={selectedCharges.length < 1}
+              onClick={() => setCreateModal(true)}
+            >
+              Create Bill
+            </Button>
+          )}
+        </Box>
+
         {bills.length > 0 && (
           <>
-            <Typography variant="h6">History</Typography>
+            <Typography mt={2} variant="h6">
+              History
+            </Typography>
             <Box
               sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
             >
@@ -197,59 +225,126 @@ function Client() {
                   maxWidth: 500,
                   bgcolor: '#2d2d2d',
                   maxHeight: 400,
+                  p: 0,
                 }}
               >
-                {bills.map((bill) => (
-                  <ListItem
-                    key={bill._id}
-                    secondaryAction={
-                      <Button
-                        variant="outlined"
-                        onClick={() => navigate(`/bill/${bill._id}`)}
-                        edge="end"
-                      >
-                        View
-                      </Button>
-                    }
-                  >
-                    <Stack
-                      direction={'row'}
-                      spacing={3}
-                      justifyContent="space-between"
+                {bills.map((bill, index) => (
+                  <Box key={bill._id}>
+                    <ListItem
+                      secondaryAction={
+                        <Button
+                          variant="outlined"
+                          onClick={() => navigate(`/bill/${bill._id}`)}
+                          edge="end"
+                        >
+                          View
+                        </Button>
+                      }
                     >
                       <Stack
                         direction={'row'}
-                        alignItems="center"
-                        sx={{ width: '100%' }}
+                        spacing={3}
+                        justifyContent="space-between"
+                        alignContent="center"
                       >
-                        <CircleIcon
-                          sx={{
-                            fontSize: 15,
-                            mr: 1,
-                          }}
-                          color={bill.isPaid ? 'success' : 'error'}
-                        />
+                        <Stack
+                          direction={'row'}
+                          alignItems="center"
+                          sx={{ width: '100%' }}
+                        >
+                          <CircleIcon
+                            sx={{
+                              fontSize: 15,
+                              mr: 1,
+                            }}
+                            color={bill.isPaid ? 'success' : 'error'}
+                          />
+                          <Typography variant="h6">
+                            {dayjs(bill.createdAt).format('M-D-YY')}
+                          </Typography>
+                        </Stack>
+
                         <Typography variant="h6">
-                          {dayjs(bill.createdAt).format('M-D-YY')}
+                          <NumberFormat
+                            displayType="text"
+                            thousandSeparator={true}
+                            prefix="$"
+                            value={bill.amountCharged.$numberDecimal}
+                          />
                         </Typography>
                       </Stack>
-
-                      <Typography variant="h6">
-                        <NumberFormat
-                          displayType="text"
-                          thousandSeparator={true}
-                          prefix="$"
-                          value={bill.amountCharged.$numberDecimal}
-                        />
-                      </Typography>
-                    </Stack>
-                  </ListItem>
+                    </ListItem>
+                    {bills.length > index + 1 && <Divider />}
+                  </Box>
                 ))}
               </List>
             </Box>
           </>
         )}
       </Box>
+
+      <Modal
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        open={createModal}
+        onClose={() => setCreateModal(false)}
+      >
+        <Box sx={style}>
+          <Typography variant="h6" align="center">
+            Create Bill
+          </Typography>
+
+          <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
+            <Button
+              fullWidth
+              onClick={() => setCreateModal(false)}
+              variant="outlined"
+              color="secondary"
+            >
+              Cancel
+            </Button>
+            <Button
+              fullWidth
+              onClick={() => handleCreateBill()}
+              variant="outlined"
+            >
+              Create
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
+
+      <Modal
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        open={deleteChargeModal}
+        onClose={() => setDeleteChargeModal(false)}
+      >
+        <Box sx={style}>
+          <Typography variant="h6" align="center">
+            Delete Charge
+          </Typography>
+
+          <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
+            <Button
+              fullWidth
+              onClick={() => setDeleteChargeModal(false)}
+              variant="outlined"
+              color="secondary"
+            >
+              Cancel
+            </Button>
+            <Button
+              fullWidth
+              onClick={() => handleDeleteCharge()}
+              color="error"
+              variant="outlined"
+            >
+              Delete
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
     </>
   )
 }

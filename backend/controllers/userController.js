@@ -35,15 +35,11 @@ const getUserHandler = asyncHandler(async (req, res) => {
     throw new Error('No user')
   }
 
-  delete user.session
-
   return res.status(200).json(user)
 })
 
 const getUsersHandler = asyncHandler(async (req, res) => {
-  const users = await User.find({
-    owner: false,
-  })
+  const users = await User.find({})
     .sort({
       createdAt: 'desc',
     })
@@ -69,15 +65,16 @@ const updateUserAdminHandler = asyncHandler(async (req, res) => {
     chargedHourly,
   }
 
-  if (permission === 'verifiedUser') {
+  if (permission === 'verified') {
     q.verifiedUser = true
     q.admin = false
   } else if (permission === 'admin') {
     q.verifiedUser = true
     q.admin = true
-  } else {
+  } else if (permission === 'suspend') {
     q.verifiedUser = false
     q.admin = false
+  } else {
   }
 
   await User.findByIdAndUpdate(req.params.id, q)

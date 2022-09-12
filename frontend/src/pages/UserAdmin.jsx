@@ -20,6 +20,7 @@ import {
 } from '@mui/material'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
 
 function UserAdmin() {
   const { user } = useSelector((state) => state.users)
@@ -71,8 +72,8 @@ function UserAdmin() {
       setFormData({
         name: user.name,
         email: user.email,
-        paidHourly: user.paidHourly,
-        chargedHourly: user.chargedHourly,
+        paidHourly: user.paidHourly.$numberDecimal,
+        chargedHourly: user.chargedHourly.$numberDecimal,
         permission: permission,
       })
     }
@@ -95,6 +96,10 @@ function UserAdmin() {
 
   const onSubmit = (e) => {
     e.preventDefault()
+
+    if (formData.name.length < 1) {
+      return toast.error('Enter a name')
+    }
 
     dispatch(
       updateUserAdmin({
@@ -210,10 +215,11 @@ function UserAdmin() {
           <Stack mt={2} direction="row" justifyContent={'center'}>
             <TextField
               fullWidth
-              label="Hourly Pay"
+              label="Paid Hourly"
               type={'number'}
               inputProps={{
                 min: '0',
+                step: '.01',
               }}
               size="small"
               disabled={disabledInput.paidHourly}
@@ -249,6 +255,7 @@ function UserAdmin() {
               type={'number'}
               inputProps={{
                 min: '0',
+                step: '.01',
               }}
               size="small"
               disabled={disabledInput.chargedHourly}
@@ -278,7 +285,7 @@ function UserAdmin() {
           </Stack>
 
           <Stack mt={2} direction="row" justifyContent={'center'}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size="small">
               <InputLabel id="select">Permission</InputLabel>
               <Select
                 labelId="select"
@@ -286,7 +293,6 @@ function UserAdmin() {
                 inputProps={{
                   min: '0',
                 }}
-                size="small"
                 disabled={disabledInput.permission}
                 value={formData.permission}
                 name="permission"

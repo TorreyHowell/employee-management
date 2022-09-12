@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Client = require('../models/clientModel')
 const Charge = require('../models/chargeModel')
+const Bill = require('../models/billModel')
 
 const createClient = asyncHandler(async (req, res) => {
   const client = await Client.create(req.body)
@@ -22,10 +23,18 @@ const getClients = asyncHandler(async (req, res) => {
 
   await Promise.all(
     clients.map(async (client) => {
-      client.outstandingCharges = await Charge.count({
+      let count = 0
+      count += await Charge.count({
         client: client._id.toString(),
         bill: null,
       })
+
+      count += await Bill.count({
+        client: client._id.toString(),
+        isPaid: false,
+      })
+
+      client.outstandingCharges = count
     })
   )
 

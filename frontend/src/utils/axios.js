@@ -1,11 +1,17 @@
 import axios from 'axios'
-import { noAuth } from '../features/auth/authSlice'
+import { noAuth, setToken } from '../features/auth/authSlice'
 import { store } from '../app/store'
 
 const myAxios = axios.create()
 
 myAxios.interceptors.response.use(
   (response) => {
+    if (
+      response.headers['x-access-token'] &&
+      response.headers['x-access-token'] !== undefined
+    ) {
+      store.dispatch(setToken(response.headers['x-access-token']))
+    }
     return response
   },
   async function (error) {

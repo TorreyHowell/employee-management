@@ -22,6 +22,8 @@ import Inbox from './pages/Inbox'
 import Bill from './pages/Bill'
 import Users from './pages/Users'
 import UserAdmin from './pages/UserAdmin'
+import InvoiceHistory from './pages/InvoiceHistory'
+import Contractors from './pages/Contractors'
 
 const darkTheme = createTheme({
   palette: {
@@ -70,8 +72,15 @@ function App() {
               <Route path="/users" element={<PrivateOwnerRoute />}>
                 <Route path="/users" element={<Users />} />
               </Route>
+              <Route path="/contractors" element={<PrivateOwnerRoute />}>
+                <Route path="/contractors" element={<Contractors />} />
+              </Route>
               <Route path="/admin/profile/:id" element={<PrivateOwnerRoute />}>
                 <Route path="/admin/profile/:id" element={<UserAdmin />} />
+              </Route>
+
+              <Route path="/invoice-history" element={<PrivateOwnerRoute />}>
+                <Route path="/invoice-history" element={<InvoiceHistory />} />
               </Route>
               <Route path="/not-verified" element={<NotVerified />} />
             </Routes>

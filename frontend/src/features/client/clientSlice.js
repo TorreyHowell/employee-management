@@ -6,6 +6,7 @@ const initialState = {
   client: null,
   clientStatus: '',
   clientMessage: '',
+  clientLoading: false,
 }
 
 export const getActiveClients = createAsyncThunk(
@@ -88,7 +89,6 @@ export const createClient = createAsyncThunk(
   'client/createClient',
   async (clientData, thunkAPI) => {
     try {
-      console.log(clientData)
       const token = thunkAPI.getState().auth.user.accessToken
       return await clientService.createClient(clientData, token)
     } catch (error) {
@@ -119,13 +119,16 @@ export const clientSlice = createSlice({
       .addCase(getActiveClients.rejected, (state, action) => {})
       .addCase(getClients.pending, (state, action) => {
         state.clientStatus = 'LOADING'
+        state.clientLoading = true
       })
       .addCase(getClients.fulfilled, (state, action) => {
         state.clients = action.payload
         state.clientStatus = ''
+        state.clientLoading = false
       })
       .addCase(getClients.rejected, (state, action) => {
         state.clientStatus = ''
+        state.clientLoading = false
       })
       .addCase(createClient.pending, (state, action) => {
         state.clientStatus = 'PENDING'

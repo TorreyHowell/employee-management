@@ -9,10 +9,13 @@ import ClientItem from '../components/ClientItem'
 import { Box, Button, TextField } from '@mui/material'
 import { Stack } from '@mui/system'
 import { useState } from 'react'
+import Spinner from '../components/Spinner'
 
 function Clients() {
   const { user } = useSelector((state) => state.auth)
-  const { clients } = useSelector((state) => state.client)
+  const { clients, clientStatus, clientLoading } = useSelector(
+    (state) => state.client
+  )
   const [addClient, setAddClient] = useState(false)
   const [client, setClient] = useState({
     name: '',
@@ -49,7 +52,7 @@ function Clients() {
 
     handleCancel()
   }
-  if (!clients) return <></>
+  if (clientStatus === 'LOADING') return <Spinner />
   return (
     <>
       <Box

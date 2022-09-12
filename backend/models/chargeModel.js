@@ -6,6 +6,9 @@ const chargeSchema = mongoose.Schema(
       type: String,
       required: [true, 'Add a name'],
     },
+    description: {
+      type: String,
+    },
     type: {
       type: String,
       required: [true, 'Add a type'],
@@ -14,9 +17,17 @@ const chargeSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    contractor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Contractor',
+    },
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
+    },
+    invoice: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Invoice',
     },
     bill: {
       type: mongoose.Schema.Types.ObjectId,

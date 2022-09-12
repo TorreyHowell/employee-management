@@ -2,9 +2,7 @@ import { Button, Modal, Typography } from '@mui/material'
 import { Box, Stack } from '@mui/system'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import InvoiceItem from '../components/InvoiceItem'
 import SentInvoiceItem from '../components/SentInvoiceItem'
-import { getActiveClients } from '../features/client/clientSlice'
 import {
   denyInvoice,
   getSentInvoices,
@@ -29,13 +27,11 @@ function Inbox() {
   const [invoiceId, setInvoiceId] = useState('')
 
   const { invoices, invoiceStatus } = useSelector((state) => state.invoice)
-  const { clients } = useSelector((state) => state.client)
 
   const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch(getSentInvoices())
-    dispatch(getActiveClients())
   }, [dispatch])
 
   const handlePayClick = (id) => {
@@ -67,11 +63,15 @@ function Inbox() {
           margin: 'auto',
         }}
       >
+        {invoices.length < 1 && (
+          <Typography variant="h6" mt={3} align="center">
+            Nothing Here Yet
+          </Typography>
+        )}
         <Stack spacing={2}>
           {invoices.map((invoice) => (
             <SentInvoiceItem
               key={invoice._id}
-              clients={clients}
               invoice={invoice}
               payClick={handlePayClick}
               denyClick={handleDenyClick}
@@ -95,11 +95,12 @@ function Inbox() {
             <Button
               onClick={() => setPayModalOpen(false)}
               color="secondary"
-              variant="contained"
+              variant="outlined"
+              fullWidth
             >
               Cancel
             </Button>
-            <Button variant="contained" onClick={() => handlePay()}>
+            <Button variant="outlined" fullWidth onClick={() => handlePay()}>
               Pay
             </Button>
           </Stack>
@@ -118,13 +119,19 @@ function Inbox() {
           </Typography>
 
           <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
-            <Button onClick={() => setDenyModalOpen(false)} variant="contained">
+            <Button
+              onClick={() => setDenyModalOpen(false)}
+              variant="outlined"
+              fullWidth
+              color="secondary"
+            >
               Cancel
             </Button>
             <Button
               onClick={() => handleDeny()}
-              variant="contained"
+              variant="outlined"
               color="error"
+              fullWidth
             >
               Deny
             </Button>

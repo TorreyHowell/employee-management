@@ -26,6 +26,18 @@ const getActiveInvoices = async (token) => {
   return response.data
 }
 
+const getPaidInvoices = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(`/api/invoice/paid`, config)
+
+  return response.data
+}
+
 const createInvoice = async (token) => {
   const config = {
     headers: {
@@ -124,6 +136,18 @@ const deleteInvoice = async (id, token) => {
   return response.data
 }
 
+const adminDeleteInvoice = async (id, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.delete(API + 'admin/' + id, config)
+
+  return response.data
+}
+
 const sendInvoice = async (id, token) => {
   const config = {
     headers: {
@@ -186,6 +210,8 @@ const invoiceService = {
   denyInvoice,
   getUserInvoices,
   rescindInvoice,
+  getPaidInvoices,
+  adminDeleteInvoice,
 }
 
 export default invoiceService

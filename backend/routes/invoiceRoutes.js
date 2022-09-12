@@ -13,6 +13,8 @@ const {
   denyInvoice,
   getUserInvoices,
   rescindInvoice,
+  adminDeleteInvoice,
+  getPaidInvoices,
 } = require('../controllers/invoiceController')
 const router = express.Router()
 const deserializeUser = require('../middleware/deserializeUser')
@@ -33,6 +35,8 @@ router.get(
   getUnsentUserInvoices
 )
 
+router.get('/paid', [deserializeUser, requireOwner], getPaidInvoices)
+
 router.get('/user', [deserializeUser, requireValidUser], getUserInvoices)
 
 router.get('/sent', [deserializeUser, requireAdmin], getSentInvoices)
@@ -50,6 +54,8 @@ router.delete(
 )
 
 router.delete('/:id', [deserializeUser, requireValidUser], deleteInvoice)
+
+router.delete('/admin/:id', [deserializeUser, requireOwner], adminDeleteInvoice)
 
 router.put('/send/:id', [deserializeUser, requireValidUser], sendInvoice)
 

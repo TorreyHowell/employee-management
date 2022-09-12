@@ -5,6 +5,7 @@ import clientReducer from '../features/client/clientSlice'
 import confirmModalReducer from '../features/modal/confirmModalSlice'
 import chargesReducer from '../features/charges/chargesSlice'
 import usersReducer from '../features/users/userSlice'
+import contractorReducer from '../features/contractors/contractorSlice'
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     confirmModal: confirmModalReducer,
     charges: chargesReducer,
     users: usersReducer,
+    contractors: contractorReducer,
   },
 })

@@ -31,7 +31,7 @@ function Users() {
                   {user.name}
                 </Typography>
 
-                {user.verifiedUser && (
+                {user.verifiedUser && !user.admin && !user.owner && (
                   <>
                     <Typography variant="subtitle2" noWrap>
                       Verified
@@ -47,10 +47,18 @@ function Users() {
                   </>
                 )}
 
-                {user.admin && (
+                {user.admin && !user.owner && (
                   <>
                     <Typography variant="subtitle2" noWrap>
                       Admin
+                    </Typography>
+                  </>
+                )}
+
+                {user.owner && (
+                  <>
+                    <Typography variant="subtitle2" noWrap>
+                      Owner
                     </Typography>
                   </>
                 )}

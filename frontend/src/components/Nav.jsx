@@ -1,5 +1,7 @@
 import {
   AppBar,
+  Backdrop,
+  CircularProgress,
   Container,
   Drawer,
   IconButton,
@@ -23,12 +25,14 @@ import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize'
 import MailIcon from '@mui/icons-material/Mail'
 import PersonIcon from '@mui/icons-material/Person'
 import GroupIcon from '@mui/icons-material/Group'
+import ConstructionIcon from '@mui/icons-material/Construction'
 import { useAuthStatus } from '../hooks/useAuthStatus'
+import Loading from './Loading'
 
 function Nav() {
-  const { user } = useSelector((state) => state.auth)
+  const { user, authStatus } = useSelector((state) => state.auth)
 
-  const { loggedIn, isAdmin, isOwner } = useAuthStatus()
+  const { loggedIn, isAdmin, isOwner, isVerified } = useAuthStatus()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const dispatch = useDispatch()
@@ -36,10 +40,10 @@ function Nav() {
 
   const onLogout = () => {
     dispatch(logout())
-    navigate('/')
   }
 
   if (!loggedIn) return <></>
+  if (authStatus === 'LOADING') return <Loading />
   return (
     <>
       <AppBar
@@ -91,7 +95,7 @@ function Nav() {
             width: 250,
           }}
         >
-          {loggedIn && (
+          {isVerified && (
             <>
               <ListItem disablePadding>
                 <ListItemButton onClick={() => navigate('/dashboard')}>
@@ -145,6 +149,22 @@ function Nav() {
                     <GroupIcon />
                   </ListItemIcon>
                   <ListItemText primary="Users" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate('/contractors')}>
+                  <ListItemIcon>
+                    <ConstructionIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Contractors" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate('/invoice-history')}>
+                  <ListItemIcon>
+                    <RequestQuoteIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Invoice History" />
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
