@@ -49,7 +49,8 @@ const generateAccessRefreshTokens = async (user, req, res) => {
   })
 
   res.cookie('refreshToken', refreshToken, {
-    secure: process.env.NODE_ENV !== 'development',
+    // process.env.NODE_ENV !== 'development'
+    secure: false,
     httpOnly: true,
     expires: dayjs().add(30, 'days').toDate(),
   })
