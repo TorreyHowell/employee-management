@@ -121,6 +121,19 @@ const createBill = asyncHandler(async (req, res) => {
   })
 })
 
+const getPaidBills = asyncHandler(async (req, res) => {
+  try {
+    const bills = await Bill.find({
+      isPaid: true,
+    })
+      .populate('client', 'name')
+      .lean()
+
+    return res.status(200).json(bills)
+  } catch (error) {
+    throw error
+  }
+})
 module.exports = {
   createBill,
   getClientBills,
@@ -128,4 +141,5 @@ module.exports = {
   updateBill,
   deleteBill,
   updateBillPrice,
+  getPaidBills,
 }

@@ -65,7 +65,7 @@ function Inbox() {
       >
         {invoices.length < 1 && (
           <Typography variant="h6" mt={3} align="center">
-            Nothing Here Yet
+            Empty
           </Typography>
         )}
         <Stack spacing={2}>

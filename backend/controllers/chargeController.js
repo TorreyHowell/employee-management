@@ -1,4 +1,6 @@
 const Charge = require('../models/chargeModel')
+const Bill = require('../models/billModel')
+const Invoice = require('../models/invoiceModel')
 const asyncHandler = require('express-async-handler')
 
 const getChargesForClient = asyncHandler(async (req, res) => {
@@ -47,9 +49,42 @@ const deleteCharge = asyncHandler(async (req, res) => {
   return res.status(203).json(req.params.id)
 })
 
+const getAccountingCharges = asyncHandler(async (req, res) => {
+  try {
+    const bills = await Bill.find({
+      isPaid: true,
+    })
+      .populate('client', 'name')
+      .lean()
+
+    const receipts = await Charge.find({
+      type: 'Receipt',
+      user: null,
+    })
+      .populate('client', 'name')
+      .lean()
+
+    const invoices = await Invoice.find({
+      paid: true,
+      isOwner: false,
+    })
+      .populate('user', 'name')
+      .lean()
+
+    return res.status(200).json({
+      bills: bills,
+      receipts: receipts,
+      invoices: invoices,
+    })
+  } catch (error) {
+    throw error
+  }
+})
+
 module.exports = {
   getChargesForClient,
   deleteCharge,
   createReceiptCharge,
   createCustomCharge,
+  getAccountingCharges,
 }

@@ -10,6 +10,7 @@ const createInvoice = asyncHandler(async (req, res) => {
 
   const invoice = await Invoice.create({
     user: user._id,
+    isOwner: user.owner,
   })
 
   if (!invoice) {

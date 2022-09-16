@@ -3,8 +3,10 @@ import chargesService from './chargesService'
 
 const initialState = {
   charges: [],
-  charge: {},
+  charge: null,
   bills: [],
+  invoices: [],
+  receipts: [],
   bill: null,
   chargesStatus: '',
   message: '',
@@ -180,6 +182,25 @@ export const createReceiptCharge = createAsyncThunk(
   }
 )
 
+export const getAccountingCharges = createAsyncThunk(
+  'charges/getAccountingCharges',
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await chargesService.getAccountingCharges(token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const createCustomCharge = createAsyncThunk(
   'charges/createCustomCharge',
   async (data, thunkAPI) => {
@@ -307,6 +328,19 @@ export const chargesSlice = createSlice({
       })
       .addCase(createCustomCharge.rejected, (state, action) => {
         state.chargesStatus = 'ERROR_CHARGES'
+        state.message = action.payload
+      })
+      .addCase(getAccountingCharges.pending, (state, action) => {
+        state.chargesStatus = 'LOADING'
+      })
+      .addCase(getAccountingCharges.fulfilled, (state, action) => {
+        state.chargesStatus = 'SUCCESS'
+        state.bills = action.payload.bills
+        state.receipts = action.payload.receipts
+        state.invoices = action.payload.invoices
+      })
+      .addCase(getAccountingCharges.rejected, (state, action) => {
+        state.chargesStatus = ''
         state.message = action.payload
       })
   },

@@ -25,6 +25,7 @@ import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize'
 import MailIcon from '@mui/icons-material/Mail'
 import PersonIcon from '@mui/icons-material/Person'
 import GroupIcon from '@mui/icons-material/Group'
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import { useAuthStatus } from '../hooks/useAuthStatus'
 import Loading from './Loading'
@@ -157,6 +158,14 @@ function Nav() {
                     <ConstructionIcon />
                   </ListItemIcon>
                   <ListItemText primary="Contractors" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate('/accounting')}>
+                  <ListItemIcon>
+                    <AttachMoneyIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Accounting" />
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>

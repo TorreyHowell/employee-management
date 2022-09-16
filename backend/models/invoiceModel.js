@@ -67,6 +67,10 @@ const invoiceSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isOwner: {
+      type: Boolean,
+      default: false,
+    },
     datePaid: {
       type: Date,
     },

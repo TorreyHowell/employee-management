@@ -11,7 +11,7 @@ const getClientCharges = async (token, id) => {
     },
   }
 
-  const response = await myAxios.get(API + id, config)
+  const response = await myAxios.get(API + 'client/' + id, config)
 
   return response.data
 }
@@ -132,6 +132,18 @@ const updateBillPrice = async (token, { query, id }) => {
   return response.data
 }
 
+const getAccountingCharges = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(`${API}accounting`, config)
+
+  return response.data
+}
+
 const chargesService = {
   getClientCharges,
   createBill,
@@ -143,6 +155,7 @@ const chargesService = {
   createReceiptCharge,
   updateBillPrice,
   createCustomCharge,
+  getAccountingCharges,
 }
 
 export default chargesService

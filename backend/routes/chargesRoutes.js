@@ -4,13 +4,16 @@ const {
   deleteCharge,
   createReceiptCharge,
   createCustomCharge,
+  getAccountingCharges,
 } = require('../controllers/chargeController')
 
 const deserializeUser = require('../middleware/deserializeUser')
 const requireOwner = require('../middleware/requireOwner')
 const router = express.Router()
 
-router.get('/:id', [deserializeUser, requireOwner], getChargesForClient)
+router.get('/client/:id', [deserializeUser, requireOwner], getChargesForClient)
+
+router.get('/accounting', [deserializeUser, requireOwner], getAccountingCharges)
 
 router.delete('/:id', [deserializeUser, requireOwner], deleteCharge)
 

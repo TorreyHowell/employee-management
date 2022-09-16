@@ -6,6 +6,7 @@ const {
   updateBill,
   deleteBill,
   updateBillPrice,
+  getPaidBills,
 } = require('../controllers/billController')
 
 const deserializeUser = require('../middleware/deserializeUser')
@@ -18,5 +19,7 @@ router.put('/price/:id', [deserializeUser, requireOwner], updateBillPrice)
 router.delete('/:id', [deserializeUser, requireOwner], deleteBill)
 router.get('/client/:id', [deserializeUser, requireOwner], getClientBills)
 router.get('/:id', [deserializeUser, requireOwner], getBill)
+
+router.get('/paid/bills', [deserializeUser, requireOwner], getPaidBills)
 
 module.exports = router
