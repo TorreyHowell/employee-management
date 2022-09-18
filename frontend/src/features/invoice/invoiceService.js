@@ -38,14 +38,14 @@ const getPaidInvoices = async (token) => {
   return response.data
 }
 
-const createInvoice = async (token) => {
+const createInvoice = async (token, data) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   }
 
-  const response = await myAxios.post(API, {}, config)
+  const response = await myAxios.post(API, data, config)
 
   return response.data
 }

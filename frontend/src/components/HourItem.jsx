@@ -2,7 +2,7 @@ import { Box, Grid, IconButton, Paper, Typography } from '@mui/material'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import dayjs from 'dayjs'
 
-function HourItem({ hour, deleteClick }) {
+function HourItem({ hour, deleteClick, hideDelete }) {
   return (
     <>
       <Box>
@@ -30,19 +30,21 @@ function HourItem({ hour, deleteClick }) {
               </Typography>
             </Grid>
 
-            <Grid item xs={2}>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'end',
-                }}
-              >
-                <IconButton onClick={() => deleteClick(hour._id)}>
-                  <DeleteForeverIcon color="error" />
-                </IconButton>
-              </Box>
-            </Grid>
+            {!hideDelete && (
+              <Grid item xs={2}>
+                <Box
+                  sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'end',
+                  }}
+                >
+                  <IconButton onClick={() => deleteClick(hour._id)}>
+                    <DeleteForeverIcon color="error" />
+                  </IconButton>
+                </Box>
+              </Grid>
+            )}
           </Grid>
 
           {/* <Stack direction={'row'} spacing={2} justifyContent="space-between">

@@ -11,14 +11,14 @@ import {
 } from '../features/client/clientSlice'
 import {
   createInvoice,
-  deleteInvoice,
-  deleteReceipt,
-  rescindInvoice,
   reset as resetInvoices,
-  sendInvoice,
 } from '../features/invoice/invoiceSlice'
 import { reset as resetStage } from '../features/modal/confirmModalSlice'
-import { deleteHours, getActiveHours } from '../features/hours/hoursSlice'
+import {
+  deleteHours,
+  getActiveHours,
+  reset as resetHours,
+} from '../features/hours/hoursSlice'
 import HourItem from '../components/HourItem'
 import AddHoursReceipts from '../components/AddHoursReceipts'
 import {
@@ -27,6 +27,7 @@ import {
   reset as resetCharges,
 } from '../features/charges/chargesSlice'
 import ReceiptItem from '../components/ReceiptItem'
+import { useNavigate } from 'react-router-dom'
 
 const style = {
   position: 'absolute',
@@ -41,9 +42,7 @@ const style = {
 }
 
 function Dashboard() {
-  const [rescindModalOpen, setRescindModalOpen] = useState(false)
-  const [invoiceId, setInvoiceId] = useState('')
-  const { invoices, invoiceStatus } = useSelector((state) => state.invoice)
+  const { invoiceStatus } = useSelector((state) => state.invoice)
   const [total, setTotal] = useState(0.0)
   const { hours, hoursStatus, hoursMessage } = useSelector(
     (state) => state.hours
@@ -52,17 +51,16 @@ function Dashboard() {
     (state) => state.charges
   )
 
-  const { isOpen, type, stagedId, parentId, sendIsOpen } = useSelector(
-    (state) => state.confirmModal
-  )
-
   const [deleteHourModal, setDeleteHourModal] = useState(false)
   const [hourId, setHourId] = useState('')
 
   const [deleteReceiptModal, setDeleteReceiptModal] = useState(false)
   const [receiptId, setReceiptId] = useState('')
 
+  const [createInvoiceModal, setCreateInvoiceModal] = useState(false)
+
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   useEffect(() => {
     dispatch(getActiveHours())
@@ -74,10 +72,15 @@ function Dashboard() {
       dispatch(resetStage())
       dispatch(resetClients())
       dispatch(resetCharges())
+      dispatch(resetHours())
     }
   }, [dispatch])
 
   useEffect(() => {
+    if (invoiceStatus === 'SUCCESS') {
+      navigate('/my-invoices')
+    }
+
     if (hoursStatus === 'ERROR') {
       toast.error(hoursMessage)
     }
@@ -85,7 +88,14 @@ function Dashboard() {
     if (chargesStatus === 'ERROR') {
       toast.error(chargesMessage)
     }
-  }, [hoursStatus, hoursMessage, chargesStatus, chargesMessage])
+  }, [
+    hoursStatus,
+    hoursMessage,
+    chargesStatus,
+    chargesMessage,
+    invoiceStatus,
+    navigate,
+  ])
 
   useEffect(() => {
     setTotal(0)
@@ -109,36 +119,18 @@ function Dashboard() {
     })
   }, [hours, receipts])
 
-  const handleRescindClick = (id) => {
-    setRescindModalOpen(true)
-    setInvoiceId(id)
-  }
-
-  const handleRescind = () => {
-    dispatch(rescindInvoice(invoiceId))
-    setRescindModalOpen(false)
-  }
-
-  const handleDelete = () => {
-    if (type === 'hour') {
-    } else if (type === 'receipt') {
-      dispatch(deleteReceipt({ id: stagedId, parentId: parentId }))
-    } else if (type === 'invoice') {
-      dispatch(deleteInvoice(stagedId))
-    }
-    dispatch(resetStage())
-  }
-
   const handleCreateInvoice = () => {
-    dispatch(createInvoice())
+    dispatch(
+      createInvoice({
+        hours: hours,
+        receipts: receipts,
+      })
+    )
+
+    setCreateInvoiceModal(false)
   }
 
-  const handleSend = () => {
-    if (type === 'send') {
-      dispatch(sendInvoice(stagedId))
-    }
-    dispatch(resetStage())
-  }
+  const handleSend = () => {}
 
   const handleDeleteHourClick = (id) => {
     setHourId(id)
@@ -225,7 +217,7 @@ function Dashboard() {
             sx={{
               marginBottom: 2,
             }}
-            onClick={handleCreateInvoice}
+            onClick={() => setCreateInvoiceModal(true)}
           >
             Create Invoice
           </Button>
@@ -235,7 +227,7 @@ function Dashboard() {
       <Modal
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        open={isOpen}
+        open={false}
         onClose={() => dispatch(resetStage())}
       >
         <Box sx={style}>
@@ -252,12 +244,7 @@ function Dashboard() {
             >
               Cancel
             </Button>
-            <Button
-              variant="outlined"
-              fullWidth
-              color="error"
-              onClick={handleDelete}
-            >
+            <Button variant="outlined" fullWidth color="error">
               Delete
             </Button>
           </Stack>
@@ -267,7 +254,7 @@ function Dashboard() {
       <Modal
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        open={sendIsOpen}
+        open={false}
         onClose={() => dispatch(resetStage())}
       >
         <Box sx={style}>
@@ -294,12 +281,12 @@ function Dashboard() {
       <Modal
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        open={rescindModalOpen}
-        onClose={() => setRescindModalOpen(false)}
+        open={createInvoiceModal}
+        onClose={() => setCreateInvoiceModal(false)}
       >
         <Box sx={style}>
           <Typography variant="h6" align="center">
-            Rescind Invoice
+            Create Invoice
           </Typography>
 
           <Stack mt={1} direction={'row'} spacing={3} justifyContent="center">
@@ -307,17 +294,17 @@ function Dashboard() {
               color="secondary"
               variant="outlined"
               fullWidth
-              onClick={() => setRescindModalOpen(false)}
+              onClick={() => setCreateInvoiceModal(false)}
             >
               Cancel
             </Button>
             <Button
-              color="error"
+              color="success"
               variant="outlined"
               fullWidth
-              onClick={handleRescind}
+              onClick={handleCreateInvoice}
             >
-              Rescind
+              Create
             </Button>
           </Stack>
         </Box>

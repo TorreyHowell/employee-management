@@ -5,7 +5,7 @@ import NumberFormat from 'react-number-format'
 import { stage } from '../features/modal/confirmModalSlice'
 import { useDispatch } from 'react-redux'
 
-function ReceiptItem({ receipt, invoiceId, deleteClick }) {
+function ReceiptItem({ receipt, invoiceId, deleteClick, hideDelete }) {
   const dispatch = useDispatch()
   return (
     <>
@@ -35,19 +35,21 @@ function ReceiptItem({ receipt, invoiceId, deleteClick }) {
             </Typography>
           </Grid>
 
-          <Grid item xs={2}>
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'end',
-              }}
-            >
-              <IconButton onClick={() => deleteClick(receipt._id)}>
-                <DeleteForeverIcon color="error" />
-              </IconButton>
-            </Box>
-          </Grid>
+          {!hideDelete && (
+            <Grid item xs={2}>
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'end',
+                }}
+              >
+                <IconButton onClick={() => deleteClick(receipt._id)}>
+                  <DeleteForeverIcon color="error" />
+                </IconButton>
+              </Box>
+            </Grid>
+          )}
         </Grid>
 
         {/* <Stack direction={'row'} spacing={2} justifyContent="space-between">

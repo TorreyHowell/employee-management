@@ -86,10 +86,10 @@ export const getPaidInvoices = createAsyncThunk(
 
 export const createInvoice = createAsyncThunk(
   'invoice/createInvoice',
-  async (_, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.accessToken
-      return await invoiceService.createInvoice(token)
+      return await invoiceService.createInvoice(token, data)
     } catch (error) {
       const message =
         (error.response &&
@@ -388,14 +388,13 @@ export const invoiceSlice = createSlice({
         state.invoiceMessage = action.payload
       })
       .addCase(createInvoice.pending, (state, action) => {
-        state.invoiceMessage = 'PENDING'
+        state.invoiceStatus = 'PENDING'
       })
       .addCase(createInvoice.fulfilled, (state, action) => {
-        state.invoiceMessage = 'SUCCESS'
-        state.invoices.push(action.payload)
+        state.invoiceStatus = 'SUCCESS'
       })
       .addCase(createInvoice.rejected, (state, action) => {
-        state.invoiceMessage = 'ERROR'
+        state.invoiceStatus = 'ERROR'
         state.invoiceMessage = action.payload
       })
       .addCase(deleteInvoice.pending, (state, action) => {
@@ -430,8 +429,8 @@ export const invoiceSlice = createSlice({
       .addCase(sendInvoice.fulfilled, (state, action) => {
         state.invoiceMessage = 'SUCCESS'
         state.invoices = state.invoices.map((invoice) => {
-          if (invoice._id === action.payload._id) {
-            return action.payload
+          if (invoice._id === action.payload) {
+            invoice.sent = true
           }
           return invoice
         })
@@ -494,9 +493,10 @@ export const invoiceSlice = createSlice({
       .addCase(rescindInvoice.fulfilled, (state, action) => {
         state.invoiceMessage = 'SUCCESS'
         state.invoices = state.invoices.map((invoice) => {
-          if (invoice._id === action.payload._id) {
-            return action.payload
+          if (invoice._id === action.payload) {
+            invoice.sent = false
           }
+
           return invoice
         })
       })

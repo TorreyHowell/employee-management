@@ -1,4 +1,11 @@
-import { Card, CardContent, Divider, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  Typography,
+} from '@mui/material'
 import dayjs from 'dayjs'
 import HourItem from './HourItem'
 import ReceiptItem from './ReceiptItem'
@@ -6,7 +13,13 @@ import ReceiptItem from './ReceiptItem'
 import { Stack } from '@mui/system'
 import NumberFormat from 'react-number-format'
 
-function UserInvoiceItem({ invoice, hideDelete }) {
+function UserInvoiceItem({
+  invoice,
+  hideDelete,
+  deleteClick,
+  sendClick,
+  rescindClick,
+}) {
   return (
     <>
       <Card>
@@ -76,6 +89,39 @@ function UserInvoiceItem({ invoice, hideDelete }) {
               />
             ))}
           </Stack>
+
+          {!invoice.sent && (
+            <Stack mt={2} spacing={1} direction={'row'}>
+              <Button
+                onClick={() => deleteClick(invoice._id)}
+                fullWidth
+                color="error"
+                variant="outlined"
+              >
+                Delete
+              </Button>
+              <Button
+                onClick={() => sendClick(invoice._id)}
+                fullWidth
+                variant="outlined"
+              >
+                Send
+              </Button>
+            </Stack>
+          )}
+
+          {invoice.sent && !invoice.paid && (
+            <Box mt={2}>
+              <Button
+                onClick={() => rescindClick(invoice._id)}
+                color="secondary"
+                fullWidth
+                variant="outlined"
+              >
+                Rescind
+              </Button>
+            </Box>
+          )}
         </CardContent>
       </Card>
     </>

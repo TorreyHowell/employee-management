@@ -26,6 +26,10 @@ const chargeSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
     },
+    invoice: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Invoice',
+    },
     hours: [
       {
         type: mongoose.Schema.Types.ObjectId,

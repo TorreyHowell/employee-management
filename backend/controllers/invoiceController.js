@@ -2,21 +2,74 @@ const asyncHandler = require('express-async-handler')
 const Invoice = require('../models/invoiceModel')
 const User = require('../models/userModel')
 const Charge = require('../models/chargeModel')
+const Hours = require('../models/hoursModel')
 const dayjs = require('dayjs')
 const { calculateCharges } = require('../service/invoiceService')
 
 const createInvoice = asyncHandler(async (req, res) => {
   const user = res.locals.user
 
+  const { hours, receipts } = req.body
+
+  const hourIds = hours.map((hour) => hour._id)
+  const receiptIds = receipts.map((receipt) => receipt._id)
+
+  const checkForHour = await Invoice.findOne({
+    hours: { $in: hourIds },
+  })
+
+  const checkForReceipt = await Invoice.findOne({
+    receipts: { $in: receiptIds },
+  })
+
+  if (checkForHour || checkForReceipt) {
+    res.status(400)
+    throw new Error('Hours or receipts already attached to Invoice')
+  }
+
   const invoice = await Invoice.create({
     user: user._id,
     isOwner: user.owner,
+    hours: hourIds,
+    receipts: receiptIds,
   })
 
   if (!invoice) {
     res.status(400)
     throw new Error('Could not create Invoice')
   }
+
+  await Hours.updateMany({ _id: { $in: hourIds } }, { invoice: invoice._id })
+
+  await Charge.updateMany(
+    { _id: { $in: receiptIds } },
+    { invoice: invoice._id }
+  )
+
+  let amountBilled = 0
+  let profit = 0
+
+  const hourItems = await Hours.find({
+    _id: { $in: hourIds },
+  }).lean()
+
+  const receiptItems = await Charge.find({
+    _id: { $in: receiptIds },
+  }).lean()
+
+  hourItems.forEach((item) => {
+    profit += parseFloat(item.amountPaid)
+    amountBilled += parseFloat(item.amountPaid)
+  })
+
+  receiptItems.forEach((item) => {
+    amountBilled += parseFloat(item.amountCharged)
+  })
+
+  invoice.amountBilled = amountBilled
+  invoice.profit = profit
+
+  await invoice.save()
 
   return res.status(201).json(invoice)
 })
@@ -131,7 +184,22 @@ const getUserInvoices = asyncHandler(async (req, res) => {
   const invoices = await Invoice.find({
     user: res.locals.user._id,
   })
-    .populate('hours.client', 'name')
+    .populate('hours')
+    .populate('receipts')
+    .populate({
+      path: 'hours',
+      populate: {
+        path: 'client',
+        model: 'Client',
+      },
+    })
+    .populate({
+      path: 'receipts',
+      populate: {
+        path: 'client',
+        model: 'Client',
+      },
+    })
     .lean()
 
   invoices.forEach((invoice) => {
@@ -161,8 +229,22 @@ const getSentInvoices = asyncHandler(async (req, res) => {
     paid: false,
     sent: true,
   })
-    .populate('hours.client', 'name')
-    .populate('user', 'name')
+    .populate('hours')
+    .populate('receipts')
+    .populate({
+      path: 'hours',
+      populate: {
+        path: 'client',
+        model: 'Client',
+      },
+    })
+    .populate({
+      path: 'receipts',
+      populate: {
+        path: 'client',
+        model: 'Client',
+      },
+    })
     .lean()
 
   return res.status(200).json(invoices)
@@ -180,6 +262,17 @@ const deleteInvoice = asyncHandler(async (req, res) => {
     res.status(400)
     throw new Error("can't delete a sent invoice")
   }
+
+  await Hours.updateMany(
+    {
+      _id: { $in: invoice.hours },
+    },
+    {
+      invoice: null,
+    }
+  )
+
+  await Charge.updateMany({ _id: { $in: invoice.receipts } }, { invoice: null })
 
   await invoice.remove()
 
@@ -220,7 +313,7 @@ const sendInvoice = asyncHandler(async (req, res) => {
 
   await invoice.save()
 
-  res.status(203).json(await invoice.populate('hours.client', 'name'))
+  res.status(200).json(invoice._id)
 })
 
 const payInvoice = asyncHandler(async (req, res) => {
@@ -258,7 +351,7 @@ const rescindInvoice = asyncHandler(async (req, res) => {
 
   await invoice.save()
 
-  res.status(203).json(await invoice.populate('hours.client', 'name'))
+  res.status(200).json(invoice._id)
 })
 
 module.exports = {
