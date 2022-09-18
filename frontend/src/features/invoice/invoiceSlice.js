@@ -141,24 +141,24 @@ export const addReceipt = createAsyncThunk(
   }
 )
 
-export const deleteHours = createAsyncThunk(
-  'invoice/deleteHours',
-  async (data, thunkAPI) => {
-    try {
-      const token = thunkAPI.getState().auth.user.accessToken
-      return await invoiceService.deleteHours(data, token)
-    } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
+// export const deleteHours = createAsyncThunk(
+//   'invoice/deleteHours',
+//   async (data, thunkAPI) => {
+//     try {
+//       const token = thunkAPI.getState().auth.user.accessToken
+//       return await invoiceService.deleteHours(data, token)
+//     } catch (error) {
+//       const message =
+//         (error.response &&
+//           error.response.data &&
+//           error.response.data.message) ||
+//         error.message ||
+//         error.toString()
 
-      return thunkAPI.rejectWithValue(message)
-    }
-  }
-)
+//       return thunkAPI.rejectWithValue(message)
+//     }
+//   }
+// )
 
 export const deleteReceipt = createAsyncThunk(
   'invoice/deleteReceipt',
@@ -355,22 +355,22 @@ export const invoiceSlice = createSlice({
         state.invoiceMessage = 'ERROR'
         state.invoiceMessage = action.payload
       })
-      .addCase(deleteHours.pending, (state, action) => {
-        state.invoiceMessage = 'PENDING'
-      })
-      .addCase(deleteHours.fulfilled, (state, action) => {
-        state.invoiceMessage = 'SUCCESS'
-        state.invoices.forEach((invoice) => {
-          if (invoice._id === action.payload._id) {
-            invoice.hours = action.payload.hours
-            invoice.amountBilled = action.payload.amountBilled
-          }
-        })
-      })
-      .addCase(deleteHours.rejected, (state, action) => {
-        state.invoiceMessage = 'ERROR'
-        state.invoiceMessage = action.payload
-      })
+      // .addCase(deleteHours.pending, (state, action) => {
+      //   state.invoiceMessage = 'PENDING'
+      // })
+      // .addCase(deleteHours.fulfilled, (state, action) => {
+      //   state.invoiceMessage = 'SUCCESS'
+      //   state.invoices.forEach((invoice) => {
+      //     if (invoice._id === action.payload._id) {
+      //       invoice.hours = action.payload.hours
+      //       invoice.amountBilled = action.payload.amountBilled
+      //     }
+      //   })
+      // })
+      // .addCase(deleteHours.rejected, (state, action) => {
+      //   state.invoiceMessage = 'ERROR'
+      //   state.invoiceMessage = action.payload
+      // })
       .addCase(deleteReceipt.pending, (state, action) => {
         state.invoiceMessage = 'PENDING'
       })

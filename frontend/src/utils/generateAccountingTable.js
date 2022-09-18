@@ -8,7 +8,6 @@ const generateChargeTableData = ({ bills, receipts, invoices }) => {
   let profit = 0
 
   receipts.forEach((charge) => {
-    revenue += parseFloat(charge.amountCharged.$numberDecimal)
     expenses += parseFloat(charge.amountCharged.$numberDecimal)
 
     return rows.push({
@@ -26,7 +25,6 @@ const generateChargeTableData = ({ bills, receipts, invoices }) => {
   })
 
   invoices.forEach((item) => {
-    revenue += parseFloat(item.amountBilled.$numberDecimal)
     expenses += parseFloat(item.amountBilled.$numberDecimal)
 
     return rows.push({

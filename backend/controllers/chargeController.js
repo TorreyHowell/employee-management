@@ -14,6 +14,36 @@ const getChargesForClient = asyncHandler(async (req, res) => {
   return res.status(200).json(charges)
 })
 
+const getUserReceipts = asyncHandler(async (req, res) => {
+  const receipts = await Charge.find({
+    type: 'Receipt',
+    user: res.locals.user._id,
+    invoice: null,
+  })
+    .populate('client', 'name')
+    .lean()
+
+  return res.status(200).json(receipts)
+})
+
+const deleteUserReceipt = asyncHandler(async (req, res) => {
+  const receipt = await Charge.findById(req.params.id)
+
+  if (receipt.user.toString() !== res.locals.user._id) {
+    res.status(400)
+    throw new Error('Not Authorized')
+  }
+
+  if (receipt.bill !== null && receipt.bill !== undefined) {
+    res.status(400)
+    throw new Error("Can't delete receipt attached to bill")
+  }
+
+  await receipt.remove()
+
+  return res.status(200).json(req.params.id)
+})
+
 const createReceiptCharge = asyncHandler(async (req, res) => {
   const { price, store, description, client } = req.body
 
@@ -24,6 +54,21 @@ const createReceiptCharge = asyncHandler(async (req, res) => {
     client,
     type: 'Receipt',
   })
+
+  return res.status(201).json(charge)
+})
+
+const createUserReceiptCharge = asyncHandler(async (req, res) => {
+  const { price, store, description, client } = req.body
+
+  const charge = await Charge.create({
+    amountCharged: price,
+    name: `${store} - Receipt`,
+    description,
+    user: res.locals.user._id,
+    client,
+    type: 'Receipt',
+  }).then((charge) => charge.populate('client', 'name'))
 
   return res.status(201).json(charge)
 })
@@ -87,4 +132,7 @@ module.exports = {
   createReceiptCharge,
   createCustomCharge,
   getAccountingCharges,
+  createUserReceiptCharge,
+  getUserReceipts,
+  deleteUserReceipt,
 }

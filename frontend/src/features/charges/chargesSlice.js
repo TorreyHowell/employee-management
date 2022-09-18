@@ -9,7 +9,7 @@ const initialState = {
   receipts: [],
   bill: null,
   chargesStatus: '',
-  message: '',
+  chargesMessage: '',
 }
 
 export const getClientCharges = createAsyncThunk(
@@ -182,6 +182,63 @@ export const createReceiptCharge = createAsyncThunk(
   }
 )
 
+export const createUserReceiptCharge = createAsyncThunk(
+  'charges/createUserReceiptCharge',
+  async (data, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await chargesService.createUserReceiptCharge(token, data)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const getUserReceipts = createAsyncThunk(
+  'charges/getUserReceipts',
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await chargesService.getUserReceipts(token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const deleteUserReceipts = createAsyncThunk(
+  'charges/deleteUserReceipts',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await chargesService.deleteUserReceipt(token, id)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const getAccountingCharges = createAsyncThunk(
   'charges/getAccountingCharges',
   async (_, thunkAPI) => {
@@ -305,7 +362,7 @@ export const chargesSlice = createSlice({
       })
       .addCase(createReceiptCharge.rejected, (state, action) => {
         state.chargesStatus = 'ERROR_CHARGES'
-        state.message = action.payload
+        state.chargesMessage = action.payload
       })
       .addCase(updateBillPrice.pending, (state, action) => {
         state.chargesStatus = 'PENDING'
@@ -317,7 +374,7 @@ export const chargesSlice = createSlice({
       })
       .addCase(updateBillPrice.rejected, (state, action) => {
         state.chargesStatus = 'ERROR'
-        state.message = action.payload
+        state.chargesMessage = action.payload
       })
       .addCase(createCustomCharge.pending, (state, action) => {
         state.chargesStatus = 'PENDING'
@@ -328,7 +385,7 @@ export const chargesSlice = createSlice({
       })
       .addCase(createCustomCharge.rejected, (state, action) => {
         state.chargesStatus = 'ERROR_CHARGES'
-        state.message = action.payload
+        state.chargesMessage = action.payload
       })
       .addCase(getAccountingCharges.pending, (state, action) => {
         state.chargesStatus = 'LOADING'
@@ -341,7 +398,42 @@ export const chargesSlice = createSlice({
       })
       .addCase(getAccountingCharges.rejected, (state, action) => {
         state.chargesStatus = ''
-        state.message = action.payload
+        state.chargesMessage = action.payload
+      })
+      .addCase(createUserReceiptCharge.pending, (state, action) => {
+        state.chargesStatus = 'Pending'
+      })
+      .addCase(createUserReceiptCharge.fulfilled, (state, action) => {
+        state.chargesStatus = 'SUCCESS'
+        state.receipts.push(action.payload)
+      })
+      .addCase(createUserReceiptCharge.rejected, (state, action) => {
+        state.chargesStatus = ''
+        state.chargesMessage = action.payload
+      })
+      .addCase(getUserReceipts.pending, (state, action) => {
+        state.chargesStatus = 'LOADING'
+      })
+      .addCase(getUserReceipts.fulfilled, (state, action) => {
+        state.chargesStatus = 'SUCCESS'
+        state.receipts = action.payload
+      })
+      .addCase(getUserReceipts.rejected, (state, action) => {
+        state.chargesStatus = ''
+        state.chargesMessage = action.payload
+      })
+      .addCase(deleteUserReceipts.pending, (state, action) => {
+        state.chargesStatus = 'PENDING'
+      })
+      .addCase(deleteUserReceipts.fulfilled, (state, action) => {
+        state.chargesStatus = 'SUCCESS'
+        state.receipts = state.receipts.filter(
+          (receipt) => receipt._id !== action.payload
+        )
+      })
+      .addCase(deleteUserReceipts.rejected, (state, action) => {
+        state.chargesStatus = 'ERROR'
+        state.chargesMessage = action.payload
       })
   },
 })

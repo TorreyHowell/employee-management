@@ -8,6 +8,7 @@ const chargeSchema = mongoose.Schema(
     },
     description: {
       type: String,
+      default: '',
     },
     type: {
       type: String,
@@ -25,9 +26,15 @@ const chargeSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
     },
-    invoice: {
+    hours: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Hours',
+      },
+    ],
+    receipt: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Invoice',
+      ref: 'Receipt',
     },
     bill: {
       type: mongoose.Schema.Types.ObjectId,

@@ -8,7 +8,6 @@ import {
   reset as resetClients,
 } from '../features/client/clientSlice'
 import {
-  deleteHours,
   deleteInvoice,
   deleteReceipt,
   getUserInvoices,
@@ -51,7 +50,6 @@ function MyInvoices() {
 
   const handleDelete = () => {
     if (type === 'hour') {
-      dispatch(deleteHours({ id: stagedId, parentId: parentId }))
     } else if (type === 'receipt') {
       dispatch(deleteReceipt({ id: stagedId, parentId: parentId }))
     } else if (type === 'invoice') {

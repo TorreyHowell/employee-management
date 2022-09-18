@@ -1,49 +1,81 @@
-import { IconButton, Paper, Stack, Typography } from '@mui/material'
+import { Box, Grid, IconButton, Paper, Typography } from '@mui/material'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import dayjs from 'dayjs'
-import { useDispatch } from 'react-redux'
-import { stage } from '../features/modal/confirmModalSlice'
 
-function HourItem({ hour, invoiceId, hideDelete }) {
-  const dispatch = useDispatch()
-
+function HourItem({ hour, deleteClick }) {
   return (
     <>
-      <Paper
-        elevation={0}
-        sx={{
-          padding: 1,
-          backgroundColor: '#3d3d3d',
-        }}
-      >
-        <Stack direction={'row'} spacing={2} justifyContent="space-between">
-          <Stack direction={'row'} spacing={2} alignItems="center">
-            <Typography variant="h6">{hour.hours} hr</Typography>
-            <Typography variant="h6">{hour.client.name} </Typography>
-            <Typography variant="h6">
-              {dayjs(hour.date).format('M-D')}{' '}
-            </Typography>
-          </Stack>
+      <Box>
+        <Paper
+          elevation={0}
+          sx={{
+            padding: 1,
+            backgroundColor: '#2d2d2d',
+          }}
+        >
+          <Grid container alignItems={'center'}>
+            <Grid item xs={3}>
+              <Typography noWrap variant="h6">
+                {hour.number.$numberDecimal}hr
+              </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <Typography noWrap variant="h6">
+                {hour.client.name}
+              </Typography>
+            </Grid>
+            <Grid item xs={3}>
+              <Typography noWrap variant="h6">
+                {dayjs(hour.date).format('M-D')}
+              </Typography>
+            </Grid>
 
-          {!hideDelete && (
-            <Stack direction={'row'} alignItems="center">
-              <IconButton
-                onClick={() =>
-                  dispatch(
-                    stage({
-                      id: hour._id,
-                      type: 'hour',
-                      parentId: invoiceId,
-                    })
-                  )
-                }
+            <Grid item xs={2}>
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'end',
+                }}
               >
+                <IconButton onClick={() => deleteClick(hour._id)}>
+                  <DeleteForeverIcon color="error" />
+                </IconButton>
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* <Stack direction={'row'} spacing={2} justifyContent="space-between">
+            <Stack direction={'row'} spacing={2} alignItems="center">
+              <Typography variant="h6">
+                {hour.number.$numberDecimal} hr
+              </Typography>
+              <Typography variant="h6">{hour.client.name} </Typography>
+              <Typography variant="h6">
+                {dayjs(hour.date).format('M-D')}{' '}
+              </Typography>
+              <Typography variant="h6">
+                <NumberFormat
+                  displayType="text"
+                  thousandSeparator={true}
+                  prefix="$"
+                  value={
+                    hour.amountCharged
+                      ? hour.amountCharged.$numberDecimal
+                      : hour.amountPaid.$numberDecimal
+                  }
+                />
+              </Typography>
+            </Stack>
+
+            <Stack direction={'row'} alignItems="center">
+              <IconButton onClick={() => deleteClick(hour._id)}>
                 <DeleteForeverIcon color="error" />
               </IconButton>
             </Stack>
-          )}
-        </Stack>
-      </Paper>
+          </Stack> */}
+        </Paper>
+      </Box>
     </>
   )
 }

@@ -96,6 +96,18 @@ const deleteCharge = async (token, id) => {
   return response.data
 }
 
+const deleteUserReceipt = async (token, id) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.delete(`${API}user-receipt/${id}`, config)
+
+  return response.data
+}
+
 const createReceiptCharge = async (token, data) => {
   const config = {
     headers: {
@@ -104,6 +116,30 @@ const createReceiptCharge = async (token, data) => {
   }
 
   const response = await myAxios.post(`${API}receipt`, data, config)
+
+  return response.data
+}
+
+const createUserReceiptCharge = async (token, data) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.post(`${API}user-receipt`, data, config)
+
+  return response.data
+}
+
+const getUserReceipts = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(`${API}user-receipts`, config)
 
   return response.data
 }
@@ -156,6 +192,9 @@ const chargesService = {
   updateBillPrice,
   createCustomCharge,
   getAccountingCharges,
+  createUserReceiptCharge,
+  deleteUserReceipt,
+  getUserReceipts,
 }
 
 export default chargesService
