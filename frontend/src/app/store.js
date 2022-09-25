@@ -7,6 +7,7 @@ import chargesReducer from '../features/charges/chargesSlice'
 import usersReducer from '../features/users/userSlice'
 import contractorReducer from '../features/contractors/contractorSlice'
 import hoursReducer from '../features/hours/hoursSlice'
+import receiptReducer from '../features/receipts/receiptSlice'
 
 export const store = configureStore({
   reducer: {
@@ -18,5 +19,6 @@ export const store = configureStore({
     users: usersReducer,
     contractors: contractorReducer,
     hours: hoursReducer,
+    receipts: receiptReducer,
   },
 })

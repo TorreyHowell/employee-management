@@ -4,6 +4,7 @@ const {
   validatePassword,
   generateAccessRefreshTokens,
   logout,
+  hashPassword,
 } = require('../service/userService')
 const User = require('../models/userModel')
 
@@ -111,6 +112,68 @@ const logoutUserHandler = asyncHandler(async (req, res) => {
   res.end()
 })
 
+const changeUserName = asyncHandler(async (req, res) => {
+  const { name } = req.body
+
+  const user = await User.findById(res.locals.user._id)
+
+  if (!user) {
+    res.status(401)
+    throw new Error('User not found')
+  }
+
+  user.name = name
+
+  await user.save()
+
+  return res.status(200).json(user.name)
+})
+
+const changeUserPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body
+
+  const user = await User.findById(res.locals.user._id)
+
+  if (!user) {
+    res.status(401)
+    throw new Error('User not found')
+  }
+
+  const hash = await hashPassword(password)
+
+  user.password = hash
+
+  await user.save()
+
+  return res.status(200).json('Password Changed')
+})
+
+const changeUserEmail = asyncHandler(async (req, res) => {
+  const { email } = req.body
+
+  const emailExists = await User.findOne({
+    email: email,
+  })
+
+  if (emailExists) {
+    res.status(400)
+    throw new Error('Email already exists')
+  }
+
+  const user = await User.findById(res.locals.user._id)
+
+  if (!user) {
+    res.status(401)
+    throw new Error('User not found')
+  }
+
+  user.email = email
+
+  await user.save()
+
+  return res.status(200).json(user.email)
+})
+
 module.exports = {
   createUserHandler,
   getUserHandler,
@@ -119,4 +182,7 @@ module.exports = {
   getUsersHandler,
   getUserAdminHandler,
   updateUserAdminHandler,
+  changeUserName,
+  changeUserEmail,
+  changeUserPassword,
 }

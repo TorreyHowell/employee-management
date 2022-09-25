@@ -27,22 +27,39 @@ const getUserActiveHours = asyncHandler(async (req, res) => {
   return res.status(200).json(hours)
 })
 
+const adminGetUserActiveHours = asyncHandler(async (req, res) => {
+  const userId = req.params.id
+
+  const hours = await Hours.find({
+    user: userId,
+    invoice: null,
+  })
+    .populate('client', 'name')
+    .lean()
+
+  return res.status(200).json(hours)
+})
+
 const deleteHours = asyncHandler(async (req, res) => {
   const hoursId = req.params.id
-
   const charge = await Charge.findOne({
     hours: hoursId,
   })
 
   const hours = await Hours.findById(hoursId)
 
+  if (hours.user.toString() !== res.locals.user._id && !res.locals.user.owner) {
+    res.status(400)
+    throw new Error('Not authorized')
+  }
+
   if (!hours) {
     res.status(400)
     throw new Error('Could not find hours')
   }
   if (!charge) {
-    res.status(400)
-    throw new Error('Could not find charge')
+    await hours.remove()
+    return res.status(200).json(hoursId)
   }
 
   if (charge.bill !== null && charge.bill !== undefined) {
@@ -138,4 +155,5 @@ module.exports = {
   createHours,
   getUserActiveHours,
   deleteHours,
+  adminGetUserActiveHours,
 }

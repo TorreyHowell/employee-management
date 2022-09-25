@@ -27,11 +27,50 @@ const logout = async () => {
   return response.data
 }
 
+const changeUserName = async (token, data) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(URL + 'user-name', data, config)
+
+  return response.data
+}
+
+const changeUserEmail = async (token, data) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(URL + 'user-email', data, config)
+
+  return response.data
+}
+
+const changeUserPassword = async (token, data) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.put(URL + 'user-password', data, config)
+
+  return response.data
+}
+
 const authService = {
   register,
   login,
   refresh,
   logout,
+  changeUserName,
+  changeUserEmail,
+  changeUserPassword,
 }
 
 export default authService

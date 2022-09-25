@@ -67,7 +67,7 @@ function Login() {
       >
         <Box
           sx={{
-            width: { xs: '80%', sm: 400 },
+            width: { xs: '95%', sm: 400 },
           }}
         >
           <Typography mb={1} align="center" variant="h3">

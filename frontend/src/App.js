@@ -27,6 +27,7 @@ import Contractors from './pages/Contractors'
 import PublicBill from './pages/PublicBill'
 import Contractor from './pages/Contractor'
 import Accounting from './pages/Accounting'
+import Profile from './pages/Profile'
 
 const darkTheme = createTheme({
   palette: {
@@ -59,6 +60,9 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/my-invoices" element={<PrivateRoute />}>
                 <Route path="/my-invoices" element={<MyInvoices />} />
+              </Route>
+              <Route path="/profile" element={<PrivateRoute />}>
+                <Route path="/profile" element={<Profile />} />
               </Route>
               <Route path="/clients" element={<PrivateAdminRoute />}>
                 <Route path="/clients" element={<Clients />} />

@@ -25,6 +25,12 @@ const createUser = async (userData) => {
   return omit(user.toJSON(), ['password', '__v'])
 }
 
+const hashPassword = async (password) => {
+  const salt = await bcrypt.genSalt(10)
+  const hash = await bcrypt.hash(password, salt)
+  return hash
+}
+
 const validatePassword = async ({ email, password }) => {
   const user = await User.findOne({ email })
 
@@ -72,4 +78,5 @@ module.exports = {
   validatePassword,
   generateAccessRefreshTokens,
   logout,
+  hashPassword,
 }

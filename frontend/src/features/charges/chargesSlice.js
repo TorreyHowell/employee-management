@@ -201,24 +201,24 @@ export const createUserReceiptCharge = createAsyncThunk(
   }
 )
 
-export const getUserReceipts = createAsyncThunk(
-  'charges/getUserReceipts',
-  async (_, thunkAPI) => {
-    try {
-      const token = thunkAPI.getState().auth.user.accessToken
-      return await chargesService.getUserReceipts(token)
-    } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
+// export const getUserReceipts = createAsyncThunk(
+//   'charges/getUserReceipts',
+//   async (_, thunkAPI) => {
+//     try {
+//       const token = thunkAPI.getState().auth.user.accessToken
+//       return await chargesService.getUserReceipts(token)
+//     } catch (error) {
+//       const message =
+//         (error.response &&
+//           error.response.data &&
+//           error.response.data.message) ||
+//         error.message ||
+//         error.toString()
 
-      return thunkAPI.rejectWithValue(message)
-    }
-  }
-)
+//       return thunkAPI.rejectWithValue(message)
+//     }
+//   }
+// )
 
 export const deleteUserReceipts = createAsyncThunk(
   'charges/deleteUserReceipts',
@@ -408,17 +408,6 @@ export const chargesSlice = createSlice({
         state.receipts.push(action.payload)
       })
       .addCase(createUserReceiptCharge.rejected, (state, action) => {
-        state.chargesStatus = ''
-        state.chargesMessage = action.payload
-      })
-      .addCase(getUserReceipts.pending, (state, action) => {
-        state.chargesStatus = 'LOADING'
-      })
-      .addCase(getUserReceipts.fulfilled, (state, action) => {
-        state.chargesStatus = 'SUCCESS'
-        state.receipts = action.payload
-      })
-      .addCase(getUserReceipts.rejected, (state, action) => {
         state.chargesStatus = ''
         state.chargesMessage = action.payload
       })

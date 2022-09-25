@@ -21,13 +21,14 @@ import {
 } from '../features/hours/hoursSlice'
 import HourItem from '../components/HourItem'
 import AddHoursReceipts from '../components/AddHoursReceipts'
-import {
-  deleteUserReceipts,
-  getUserReceipts,
-  reset as resetCharges,
-} from '../features/charges/chargesSlice'
+import { reset as resetCharges } from '../features/charges/chargesSlice'
 import ReceiptItem from '../components/ReceiptItem'
 import { useNavigate } from 'react-router-dom'
+import {
+  deleteUserReceipt,
+  getUserReceipts,
+  reset as resetReceipts,
+} from '../features/receipts/receiptSlice'
 
 const style = {
   position: 'absolute',
@@ -47,9 +48,11 @@ function Dashboard() {
   const { hours, hoursStatus, hoursMessage } = useSelector(
     (state) => state.hours
   )
-  const { receipts, chargesStatus, chargesMessage } = useSelector(
+  const { chargesStatus, chargesMessage } = useSelector(
     (state) => state.charges
   )
+
+  const { receipts } = useSelector((state) => state.receipts)
 
   const [deleteHourModal, setDeleteHourModal] = useState(false)
   const [hourId, setHourId] = useState('')
@@ -68,11 +71,12 @@ function Dashboard() {
     dispatch(getUserReceipts())
 
     return () => {
+      dispatch(resetHours())
       dispatch(resetInvoices())
       dispatch(resetStage())
       dispatch(resetClients())
       dispatch(resetCharges())
-      dispatch(resetHours())
+      dispatch(resetReceipts())
     }
   }, [dispatch])
 
@@ -80,7 +84,9 @@ function Dashboard() {
     if (invoiceStatus === 'SUCCESS') {
       navigate('/my-invoices')
     }
+  }, [invoiceStatus, navigate])
 
+  useEffect(() => {
     if (hoursStatus === 'ERROR') {
       toast.error(hoursMessage)
     }
@@ -88,35 +94,32 @@ function Dashboard() {
     if (chargesStatus === 'ERROR') {
       toast.error(chargesMessage)
     }
-  }, [
-    hoursStatus,
-    hoursMessage,
-    chargesStatus,
-    chargesMessage,
-    invoiceStatus,
-    navigate,
-  ])
+  }, [chargesStatus, hoursStatus, chargesMessage, hoursMessage])
 
   useEffect(() => {
     setTotal(0)
 
-    hours.forEach((hour) => {
-      setTotal(
-        (prevState) =>
-          (prevState += hour.amountCharged
-            ? parseFloat(hour.amountCharged.$numberDecimal)
-            : parseFloat(hour.amountPaid.$numberDecimal))
-      )
-    })
+    if (hours.length > 0) {
+      hours.forEach((hour) => {
+        setTotal(
+          (prevState) =>
+            (prevState += hour.amountCharged
+              ? parseFloat(hour.amountCharged.$numberDecimal)
+              : parseFloat(hour.amountPaid.$numberDecimal))
+        )
+      })
+    }
 
-    receipts.forEach((receipt) => {
-      setTotal(
-        (prevState) =>
-          (prevState += receipt.amountCharged
-            ? parseFloat(receipt.amountCharged.$numberDecimal)
-            : parseFloat(receipt.amountPaid.$numberDecimal))
-      )
-    })
+    if (receipts.length > 0) {
+      receipts.forEach((receipt) => {
+        setTotal(
+          (prevState) =>
+            (prevState += receipt.amountCharged
+              ? parseFloat(receipt.amountCharged.$numberDecimal)
+              : parseFloat(receipt.amountPaid.$numberDecimal))
+        )
+      })
+    }
   }, [hours, receipts])
 
   const handleCreateInvoice = () => {
@@ -148,7 +151,7 @@ function Dashboard() {
   }
 
   const handleReceiptDelete = () => {
-    dispatch(deleteUserReceipts(receiptId))
+    dispatch(deleteUserReceipt(receiptId))
     setDeleteReceiptModal(false)
   }
 
@@ -213,7 +216,7 @@ function Dashboard() {
           <Button
             variant="outlined"
             fullWidth
-            disabled={hours.length < 1}
+            disabled={hours.length + receipts.length < 1}
             sx={{
               marginBottom: 2,
             }}

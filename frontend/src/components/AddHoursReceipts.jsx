@@ -18,6 +18,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { toast } from 'react-toastify'
 import { createHours } from '../features/hours/hoursSlice'
 import { createUserReceiptCharge } from '../features/charges/chargesSlice'
+import { createUserReceipt } from '../features/receipts/receiptSlice'
 const ITEM_HEIGHT = 50
 const ITEM_PADDING_TOP = 8
 const MenuProps = {
@@ -107,7 +108,7 @@ function AddHoursReceipts() {
       return toast.error('Enter Store')
     }
 
-    dispatch(createUserReceiptCharge(receiptData))
+    dispatch(createUserReceipt(receiptData))
 
     handleCancel()
   }

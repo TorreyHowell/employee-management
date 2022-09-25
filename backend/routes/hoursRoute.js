@@ -9,10 +9,17 @@ const {
   createHours,
   getUserActiveHours,
   deleteHours,
+  adminGetUserActiveHours,
 } = require('../controllers/hourController')
 
 router.post('/', [deserializeUser, requireValidUser], createHours)
 router.delete('/:id', [deserializeUser, requireValidUser], deleteHours)
 router.get('/active', [deserializeUser, requireValidUser], getUserActiveHours)
+
+router.get(
+  '/admin/active/:id',
+  [deserializeUser, requireOwner],
+  adminGetUserActiveHours
+)
 
 module.exports = router

@@ -14,16 +14,12 @@ function HourItem({ hour, deleteClick, hideDelete }) {
           }}
         >
           <Grid container alignItems={'center'}>
-            <Grid item xs={3}>
+            <Grid item xs={7}>
               <Typography noWrap variant="h6">
-                {hour.number.$numberDecimal}hr
+                {hour.number.$numberDecimal}hr {hour.client.name}
               </Typography>
             </Grid>
-            <Grid item xs={4}>
-              <Typography noWrap variant="h6">
-                {hour.client.name}
-              </Typography>
-            </Grid>
+
             <Grid item xs={3}>
               <Typography noWrap variant="h6">
                 {dayjs(hour.date).format('M-D')}
@@ -46,36 +42,6 @@ function HourItem({ hour, deleteClick, hideDelete }) {
               </Grid>
             )}
           </Grid>
-
-          {/* <Stack direction={'row'} spacing={2} justifyContent="space-between">
-            <Stack direction={'row'} spacing={2} alignItems="center">
-              <Typography variant="h6">
-                {hour.number.$numberDecimal} hr
-              </Typography>
-              <Typography variant="h6">{hour.client.name} </Typography>
-              <Typography variant="h6">
-                {dayjs(hour.date).format('M-D')}{' '}
-              </Typography>
-              <Typography variant="h6">
-                <NumberFormat
-                  displayType="text"
-                  thousandSeparator={true}
-                  prefix="$"
-                  value={
-                    hour.amountCharged
-                      ? hour.amountCharged.$numberDecimal
-                      : hour.amountPaid.$numberDecimal
-                  }
-                />
-              </Typography>
-            </Stack>
-
-            <Stack direction={'row'} alignItems="center">
-              <IconButton onClick={() => deleteClick(hour._id)}>
-                <DeleteForeverIcon color="error" />
-              </IconButton>
-            </Stack>
-          </Stack> */}
         </Paper>
       </Box>
     </>

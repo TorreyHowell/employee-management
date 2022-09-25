@@ -14,7 +14,7 @@ const invoiceSchema = new mongoose.Schema(
 
     receipts: {
       type: [mongoose.Schema.Types.ObjectId],
-      ref: 'Charge',
+      ref: 'Receipt',
     },
 
     amountBilled: {

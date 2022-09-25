@@ -1,8 +1,6 @@
 import { Grid, IconButton, Paper, Stack, Box, Typography } from '@mui/material'
-import dayjs from 'dayjs'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import NumberFormat from 'react-number-format'
-import { stage } from '../features/modal/confirmModalSlice'
 import { useDispatch } from 'react-redux'
 
 function ReceiptItem({ receipt, invoiceId, deleteClick, hideDelete }) {
@@ -17,7 +15,7 @@ function ReceiptItem({ receipt, invoiceId, deleteClick, hideDelete }) {
         }}
       >
         <Grid container alignItems={'center'}>
-          <Grid item xs={7}>
+          <Grid item xs={5}>
             <Typography noWrap variant="h6">
               <NumberFormat
                 displayType="text"
@@ -29,7 +27,7 @@ function ReceiptItem({ receipt, invoiceId, deleteClick, hideDelete }) {
             </Typography>
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={5}>
             <Typography noWrap variant="h6">
               {receipt.client.name}
             </Typography>

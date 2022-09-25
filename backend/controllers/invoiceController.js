@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler')
 const Invoice = require('../models/invoiceModel')
 const User = require('../models/userModel')
 const Charge = require('../models/chargeModel')
+const Receipt = require('../models/receiptModal')
 const Hours = require('../models/hoursModel')
 const dayjs = require('dayjs')
 const { calculateCharges } = require('../service/invoiceService')
@@ -41,7 +42,7 @@ const createInvoice = asyncHandler(async (req, res) => {
 
   await Hours.updateMany({ _id: { $in: hourIds } }, { invoice: invoice._id })
 
-  await Charge.updateMany(
+  await Receipt.updateMany(
     { _id: { $in: receiptIds } },
     { invoice: invoice._id }
   )
@@ -200,6 +201,9 @@ const getUserInvoices = asyncHandler(async (req, res) => {
         model: 'Client',
       },
     })
+    .sort({
+      createdAt: 'desc',
+    })
     .lean()
 
   invoices.forEach((invoice) => {
@@ -216,11 +220,27 @@ const getPaidInvoices = asyncHandler(async (req, res) => {
   const invoices = await Invoice.find({
     paid: true,
   })
-    .populate('hours.client', 'name')
+    .populate('hours')
+    .populate('receipts')
     .populate('user', 'name')
-    .sort({ createdAt: 'desc' })
+    .populate({
+      path: 'hours',
+      populate: {
+        path: 'client',
+        model: 'Client',
+      },
+    })
+    .populate({
+      path: 'receipts',
+      populate: {
+        path: 'client',
+        model: 'Client',
+      },
+    })
+    .sort({
+      createdAt: 'desc',
+    })
     .lean()
-
   return res.status(200).json(invoices)
 })
 
@@ -272,7 +292,10 @@ const deleteInvoice = asyncHandler(async (req, res) => {
     }
   )
 
-  await Charge.updateMany({ _id: { $in: invoice.receipts } }, { invoice: null })
+  await Receipt.updateMany(
+    { _id: { $in: invoice.receipts } },
+    { invoice: null }
+  )
 
   await invoice.remove()
 
@@ -282,18 +305,63 @@ const deleteInvoice = asyncHandler(async (req, res) => {
 const adminDeleteInvoice = asyncHandler(async (req, res) => {
   const invoice = await Invoice.findById(req.params.id)
 
-  const chargesAttachedToBills = await Charge.find({
-    invoice: invoice._id,
-    bill: { $ne: null },
-  })
-
-  if (chargesAttachedToBills.length > 0) {
+  if (!invoice) {
     res.status(400)
-    throw new Error('Invoice has charges attached to a bill')
+    throw new Error('Invoice not found')
   }
 
-  await Charge.deleteMany({
+  const receipts = await Receipt.find({
     invoice: invoice._id,
+  })
+
+  const hours = await Hours.find({
+    invoice: invoice._id,
+  })
+
+  const hourIds = hours.map((hour) => hour._id)
+  const receiptIds = receipts.map((receipt) => receipt._id)
+
+  await Receipt.deleteMany({
+    invoice: invoice._id,
+  })
+
+  await Hours.deleteMany({
+    invoice: invoice._id,
+  })
+
+  Promise.all(
+    hours.map(async (hour) => {
+      const charge = await Charge.findOne({ hours: hour._id })
+
+      if (!charge) {
+        return
+      }
+
+      if (charge.bill !== null && charge.bill !== undefined) {
+        return
+      }
+
+      if (charge.hours.length === 1) {
+        await charge.remove()
+        return
+      }
+
+      charge.hours.pull(hour._id)
+
+      charge.amountCharged =
+        parseFloat(charge.amountCharged) - parseFloat(hour.amountCharged)
+
+      charge.profit =
+        parseFloat(charge.profit) -
+        (parseFloat(hour.amountCharged) - parseFloat(hour.amountPaid))
+
+      await charge.save()
+    })
+  )
+
+  await Charge.deleteMany({
+    receipt: { $in: receiptIds },
+    bill: null,
   })
 
   await invoice.remove()
@@ -322,8 +390,6 @@ const payInvoice = asyncHandler(async (req, res) => {
   })
 
   res.status(203).json(req.params.id)
-
-  await calculateCharges(req.params.id)
 })
 
 const denyInvoice = asyncHandler(async (req, res) => {

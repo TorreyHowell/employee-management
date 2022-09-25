@@ -5,6 +5,7 @@ const chargesRoutes = require('./routes/chargesRoutes')
 const billRoutes = require('./routes/billRoutes')
 const contractorRoutes = require('./routes/contractorRoutes')
 const hoursRoutes = require('./routes/hoursRoute')
+const receiptRoutes = require('./routes/receiptRoute')
 
 const router = (app) => {
   app.use('/api/users', userRoutes)
@@ -14,6 +15,7 @@ const router = (app) => {
   app.use('/api/bills', billRoutes)
   app.use('/api/contractors', contractorRoutes)
   app.use('/api/hours', hoursRoutes)
+  app.use('/api/receipts', receiptRoutes)
 }
 
 module.exports = router

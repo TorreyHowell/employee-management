@@ -117,9 +117,7 @@ function Nav() {
               </ListItem>
 
               <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => navigate(`/profile/${user._id}`)}
-                >
+                <ListItemButton onClick={() => navigate(`/profile`)}>
                   <ListItemIcon>
                     <PersonIcon />
                   </ListItemIcon>

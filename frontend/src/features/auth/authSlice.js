@@ -4,7 +4,7 @@ import authService from './authService'
 const initialState = {
   user: null,
   authStatus: 'REFRESHING',
-  message: '',
+  authMessage: '',
 }
 
 export const register = createAsyncThunk(
@@ -69,13 +69,70 @@ export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   }
 })
 
+export const changeUserName = createAsyncThunk(
+  'auth/changeUserName',
+  async (data, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await authService.changeUserName(token, data)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const changeUserEmail = createAsyncThunk(
+  'auth/changeUserEmail',
+  async (data, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await authService.changeUserEmail(token, data)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+export const changeUserPassword = createAsyncThunk(
+  'auth/changeUserPassword',
+  async (data, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await authService.changeUserPassword(token, data)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     reset: (state) => {
       state.authStatus = ''
-      state.message = ''
+      state.authMessage = ''
     },
     noAuth: (state) => {
       state.authStatus = ''
@@ -96,7 +153,7 @@ export const authSlice = createSlice({
         state.authStatus = 'SUCCESS'
       })
       .addCase(register.rejected, (state, action) => {
-        state.message = action.payload
+        state.authMessage = action.payload
         state.authStatus = 'ERROR'
       })
       .addCase(login.pending, (state) => {
@@ -107,7 +164,7 @@ export const authSlice = createSlice({
         state.authStatus = 'SUCCESS'
       })
       .addCase(login.rejected, (state, action) => {
-        state.message = action.payload
+        state.authMessage = action.payload
         state.authStatus = 'ERROR'
       })
       .addCase(refresh.pending, (state) => {
@@ -119,7 +176,7 @@ export const authSlice = createSlice({
       })
       .addCase(refresh.rejected, (state, action) => {
         state.authStatus = 'Error'
-        state.message = action.payload
+        state.authMessage = action.payload
       })
       .addCase(logout.pending, (state) => {
         state.user = null
@@ -130,6 +187,32 @@ export const authSlice = createSlice({
       })
       .addCase(logout.rejected, (state) => {
         state.user = null
+      })
+      .addCase(changeUserName.pending, (state) => {})
+      .addCase(changeUserName.fulfilled, (state, action) => {
+        state.user.name = action.payload
+        state.authStatus = 'CHANGED'
+        state.authMessage = 'Name successfully changed'
+      })
+      .addCase(changeUserName.rejected, (state) => {})
+      .addCase(changeUserEmail.pending, (state) => {})
+      .addCase(changeUserEmail.fulfilled, (state, action) => {
+        state.user.email = action.payload
+        state.authStatus = 'CHANGED'
+        state.authMessage = 'Email successfully changed'
+      })
+      .addCase(changeUserEmail.rejected, (state, action) => {
+        state.authStatus = 'ERROR'
+        state.authMessage = action.payload
+      })
+      .addCase(changeUserPassword.pending, (state) => {})
+      .addCase(changeUserPassword.fulfilled, (state, action) => {
+        state.authStatus = 'CHANGED'
+        state.authMessage = 'Password successfully changed'
+      })
+      .addCase(changeUserPassword.rejected, (state, action) => {
+        state.authStatus = 'ERROR'
+        state.authMessage = action.payload
       })
   },
 })

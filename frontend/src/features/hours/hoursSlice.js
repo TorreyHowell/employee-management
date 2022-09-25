@@ -64,8 +64,27 @@ export const getActiveHours = createAsyncThunk(
   }
 )
 
+export const getUserActiveHours = createAsyncThunk(
+  'hours/getUserActiveHours',
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accessToken
+      return await hoursService.getUserActiveHours(token, id)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const hoursSlice = createSlice({
-  name: 'auth',
+  name: 'hours',
   initialState,
   reducers: {
     reset: (state) => initialState,
@@ -92,6 +111,17 @@ export const hoursSlice = createSlice({
         state.hoursStatus = ''
       })
       .addCase(deleteHours.rejected, (state, action) => {
+        state.hoursStatus = 'ERROR'
+        state.hoursMessage = action.payload
+      })
+      .addCase(getUserActiveHours.pending, (state, action) => {
+        state.hoursStatus = 'LOADING'
+      })
+      .addCase(getUserActiveHours.fulfilled, (state, action) => {
+        state.hours = action.payload
+        state.hoursStatus = ''
+      })
+      .addCase(getUserActiveHours.rejected, (state, action) => {
         state.hoursStatus = 'ERROR'
         state.hoursMessage = action.payload
       })

@@ -14,6 +14,18 @@ const getActiveHours = async (token) => {
   return response.data
 }
 
+const getUserActiveHours = async (token, id) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await myAxios.get(`${API}admin/active/${id}`, config)
+
+  return response.data
+}
+
 const deleteHours = async (token, id) => {
   const config = {
     headers: {
@@ -42,6 +54,7 @@ const hoursService = {
   createHours,
   getActiveHours,
   deleteHours,
+  getUserActiveHours,
 }
 
 export default hoursService

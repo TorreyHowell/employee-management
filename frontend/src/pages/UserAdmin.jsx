@@ -21,6 +21,7 @@ import {
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import UserActivity from '../components/UserActivity'
 
 function UserAdmin() {
   const { user } = useSelector((state) => state.users)
@@ -121,7 +122,7 @@ function UserAdmin() {
   if (!user) return <></>
   return (
     <>
-      <Box>
+      <Box mb={3}>
         <Stack
           mb={5}
           direction="row"
@@ -335,6 +336,8 @@ function UserAdmin() {
           )}
         </Box>
       </Box>
+
+      <UserActivity />
     </>
   )
 }
