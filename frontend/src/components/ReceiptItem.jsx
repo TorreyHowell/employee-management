@@ -1,10 +1,8 @@
-import { Grid, IconButton, Paper, Stack, Box, Typography } from '@mui/material'
+import { Grid, IconButton, Paper, Box, Typography } from '@mui/material'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import NumberFormat from 'react-number-format'
-import { useDispatch } from 'react-redux'
 
 function ReceiptItem({ receipt, invoiceId, deleteClick, hideDelete }) {
-  const dispatch = useDispatch()
   return (
     <>
       <Paper

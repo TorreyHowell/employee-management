@@ -7,7 +7,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { toSafeInteger } from 'lodash'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -31,7 +30,7 @@ const style = {
 }
 
 function CreateCharge() {
-  const { chargesStatus, message } = useSelector((state) => state.charges)
+  const { chargesStatus } = useSelector((state) => state.charges)
 
   const [modalOpen, setModalOpen] = useState(false)
 

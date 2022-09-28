@@ -17,7 +17,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { toast } from 'react-toastify'
 import { createHours } from '../features/hours/hoursSlice'
-import { createUserReceiptCharge } from '../features/charges/chargesSlice'
 import { createUserReceipt } from '../features/receipts/receiptSlice'
 const ITEM_HEIGHT = 50
 const ITEM_PADDING_TOP = 8

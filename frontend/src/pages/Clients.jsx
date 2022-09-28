@@ -13,9 +13,7 @@ import Spinner from '../components/Spinner'
 
 function Clients() {
   const { user } = useSelector((state) => state.auth)
-  const { clients, clientStatus, clientLoading } = useSelector(
-    (state) => state.client
-  )
+  const { clients, clientStatus } = useSelector((state) => state.client)
   const [addClient, setAddClient] = useState(false)
   const [client, setClient] = useState({
     name: '',

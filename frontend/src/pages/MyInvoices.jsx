@@ -9,7 +9,6 @@ import {
 } from '../features/client/clientSlice'
 import {
   deleteInvoice,
-  deleteReceipt,
   getUserInvoices,
   rescindInvoice,
   reset as resetInvoices,
